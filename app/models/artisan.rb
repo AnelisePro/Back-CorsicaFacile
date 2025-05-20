@@ -20,8 +20,9 @@ class Artisan < ApplicationRecord
   validates :insurance, presence: true
   validate :validate_file_types
 
-   # Validation des fichiers (KBIS et assurance doivent être PDF ou images)
-   def validate_file_types
+  after_save :auto_verify!
+
+  def validate_file_types
     if kbis.attached? && !kbis.content_type.in?(%w[application/pdf image/jpeg image/png])
       errors.add(:kbis, 'doit être un fichier PDF ou une image (JPEG/PNG).')
     end
@@ -31,19 +32,13 @@ class Artisan < ApplicationRecord
     end
   end
 
-  # Ajouter une méthode pour vérifier si l'artisan est un utilisateur actif ou valide
-  def active_for_authentication?
-    super && self.verified?
-  end
-
-  # Vérification de l'état de vérification
-  def verified?
-    # Ajouter la logique pour vérifier si l'artisan a bien fourni les documents nécessaires
-    self.kbis.attached? && self.insurance.attached?
-  end
-
-  # Custom method to determine when password validation is needed
   def password_required?
     new_record? || password.present?
+  end
+
+  def auto_verify!
+    if kbis.attached? && insurance.attached?
+      update_column(:verified, true) unless verified?
+    end
   end
 end

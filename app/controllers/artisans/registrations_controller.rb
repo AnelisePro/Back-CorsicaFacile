@@ -6,10 +6,8 @@ module Artisans
       form_data = sign_up_params
       membership_plan = form_data[:membership_plan]
 
-      # Créer l'artisan avec toutes les infos sauf fichiers attachés
       @artisan = Artisan.new(form_data.except(:kbis, :insurance))
 
-      # Attacher les fichiers KBIS et assurance si présents
       @artisan.kbis.attach(form_data[:kbis]) if form_data[:kbis].present?
       @artisan.insurance.attach(form_data[:insurance]) if form_data[:insurance].present?
 
@@ -59,6 +57,7 @@ module Artisans
     end
   end
 end
+
 
 
 

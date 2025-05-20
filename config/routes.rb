@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get 'artisans/index'
   devise_for :clients,
     path: 'clients',
     controllers: {
@@ -28,6 +29,7 @@ Rails.application.routes.draw do
     get 'me/plan_info', to: 'profiles#plan_info'
   end
 
+  resources :artisans, only: [:index]
   post "/stripe/create-checkout-session", to: "payments#create_checkout_session"
   post '/webhooks/stripe', to: 'webhooks#stripe'
 
