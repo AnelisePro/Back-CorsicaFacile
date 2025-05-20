@@ -15,7 +15,8 @@ module Artisans
           phone: artisan.phone,
           membership_plan: artisan.membership_plan,
           kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
-          insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil
+          insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
+          avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil
         }
       }, status: :ok
     end
@@ -27,7 +28,7 @@ module Artisans
       permitted_params = params.require(:artisan).permit(
         :company_name, :address, :expertise, :siren,
         :email, :phone, :password, :password_confirmation, :membership_plan,
-        :kbis, :insurance
+        :kbis, :insurance, :avatar
       )
 
       if permitted_params[:kbis]
@@ -38,7 +39,9 @@ module Artisans
         artisan.insurance.attach(permitted_params[:insurance])
       end
 
-      artisan_params = permitted_params.except(:kbis, :insurance)
+      artisan.avatar.attach(permitted_params[:avatar]) if permitted_params[:avatar]
+
+      artisan_params = permitted_params.except(:kbis, :insurance, :avatar)
 
       if artisan.update(artisan_params)
         if artisan.membership_plan != previous_plan
@@ -71,7 +74,8 @@ module Artisans
               :email, :phone, :membership_plan
             ]).merge({
               kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
-              insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil
+              insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
+              avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil
             })
           }
         end

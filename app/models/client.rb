@@ -11,6 +11,8 @@ class Client < ApplicationRecord
   validates :phone, presence: true, format: { with: /\A(\+33|0)[1-9](\d{2}){4}\z/, message: 'doit être un numéro de téléphone valide' }
   validates :email, presence: true, uniqueness: true
 
+  has_one_attached :avatar
+
   # Custom method to determine when password validation is needed
   def password_required?
     new_record? || password.present?

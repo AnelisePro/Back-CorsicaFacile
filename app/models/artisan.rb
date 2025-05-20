@@ -7,6 +7,7 @@ class Artisan < ApplicationRecord
 
   has_one_attached :kbis
   has_one_attached :insurance
+  has_one_attached :avatar
 
   validates :company_name, presence: true
   validates :address, presence: true
