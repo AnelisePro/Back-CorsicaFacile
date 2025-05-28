@@ -26,10 +26,12 @@ Rails.application.routes.draw do
     get 'me', to: 'profiles#show'
     put 'me', to: 'profiles#update'
     delete 'me', to: 'profiles#destroy'
+    delete 'delete_project_image/:image_id', to: 'profiles#delete_project_image'
     get 'me/plan_info', to: 'profiles#plan_info'
   end
 
-  resources :artisans, only: [:index]
+  resources :artisans, only: [:index, :show]
+
   post "/stripe/create-checkout-session", to: "payments#create_checkout_session"
   post '/webhooks/stripe', to: 'webhooks#stripe'
 

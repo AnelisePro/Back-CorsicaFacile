@@ -16,7 +16,10 @@ module Artisans
           membership_plan: artisan.membership_plan,
           kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
           insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
-          avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil
+          avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
+          description: artisan.description,
+          images_urls: artisan.project_images.map { |img| url_for(img) }
+
         }
       }, status: :ok
     end
@@ -28,20 +31,38 @@ module Artisans
       permitted_params = params.require(:artisan).permit(
         :company_name, :address, :expertise, :siren,
         :email, :phone, :password, :password_confirmation, :membership_plan,
-        :kbis, :insurance, :avatar
+        :kbis, :insurance, :avatar, :description, project_images: [],
+        deleted_image_urls: []
       )
 
-      if permitted_params[:kbis]
-        artisan.kbis.attach(permitted_params[:kbis])
+      # Suppression des images envoyées en deleted_image_urls
+      if permitted_params[:deleted_image_urls].present?
+        permitted_params[:deleted_image_urls].each do |url|
+          # Trouver l'image par son URL (ActiveStorage)
+          image = artisan.project_images.find do |img|
+            Rails.application.routes.url_helpers.rails_blob_url(img, only_path: false) == url
+          end
+          image&.purge
+        end
       end
 
-      if permitted_params[:insurance]
-        artisan.insurance.attach(permitted_params[:insurance])
-      end
-
+      artisan.kbis.attach(permitted_params[:kbis]) if permitted_params[:kbis]
+      artisan.insurance.attach(permitted_params[:insurance]) if permitted_params[:insurance]
       artisan.avatar.attach(permitted_params[:avatar]) if permitted_params[:avatar]
 
-      artisan_params = permitted_params.except(:kbis, :insurance, :avatar)
+      if permitted_params[:project_images]
+        existing_images_count = artisan.project_images.count
+        new_images_count = permitted_params[:project_images].size
+
+        if existing_images_count + new_images_count > 10
+          render json: { error: "Vous ne pouvez pas avoir plus de 10 images au total." }, status: :unprocessable_entity
+          return
+        end
+
+        artisan.project_images.attach(permitted_params[:project_images])
+      end
+
+      artisan_params = permitted_params.except(:kbis, :insurance, :avatar, :project_images, :deleted_image_urls)
 
       if artisan.update(artisan_params)
         if artisan.membership_plan != previous_plan
@@ -75,12 +96,26 @@ module Artisans
             ]).merge({
               kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
               insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
-              avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil
+              avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
+              images_urls: artisan.project_images.map { |img| url_for(img) }
             })
           }
         end
       else
         render json: { errors: artisan.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
+    def delete_project_image
+      artisan = current_artisan
+      image_id = params[:image_id]
+
+      image = artisan.project_images.find { |img| img.id.to_s == image_id }
+      if image
+        image.purge
+        render json: { message: 'Image supprimée' }, status: :ok
+      else
+        render json: { error: 'Image introuvable' }, status: :not_found
       end
     end
 
@@ -90,7 +125,6 @@ module Artisans
       head :no_content
     end
 
-    # Nouvelle action pour récupérer prix + fréquence Stripe
     def plan_info
       prices = {
         'Standard' => 'price_1RO49eRs43niZdSJXoxviAQo',
@@ -117,6 +151,7 @@ module Artisans
     end
   end
 end
+
 
 
 

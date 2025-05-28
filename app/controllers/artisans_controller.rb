@@ -1,4 +1,7 @@
 class ArtisansController < ApplicationController
+  include Rails.application.routes.url_helpers
+
+  # GET /artisans
   def index
     expertise = params[:expertise]
     location = params[:location]
@@ -11,6 +14,29 @@ class ArtisansController < ApplicationController
       artisans = Artisan.none
     end
 
-    render json: artisans
+    render json: artisans.map { |artisan|
+      artisan.as_json(only: [:id, :company_name, :address, :expertise, :description]).merge({
+        avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil
+      })
+    }
+  end
+
+  # GET /artisans/:id
+  def show
+    artisan = Artisan.find(params[:id])
+    host = request.base_url
+
+    render json: artisan.as_json(
+      only: [:id, :company_name, :address, :expertise, :description]
+    ).merge(
+      avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
+      images_urls: artisan.project_images.map { |img| url_for(img) }
+    )
   end
 end
+
+
+
+
+
+
