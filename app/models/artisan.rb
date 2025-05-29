@@ -9,8 +9,8 @@ class Artisan < ApplicationRecord
   has_one_attached :insurance
   has_one_attached :avatar
 
-  # Nouveau : plusieurs images réalisations
   has_many_attached :project_images
+  has_many :availability_slots, dependent: :destroy
 
   validates :company_name, :address, :expertise, :siren, :email, :phone, presence: true
   validates :siren, uniqueness: true, format: { with: /\A\d{9}\z/, message: 'doit contenir 9 chiffres' }

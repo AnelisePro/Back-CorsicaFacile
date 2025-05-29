@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_26_110526) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_29_130853) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -64,6 +64,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_26_110526) do
     t.index ["siren"], name: "index_artisans_on_siren", unique: true
   end
 
+  create_table "availability_slots", force: :cascade do |t|
+    t.bigint "artisan_id", null: false
+    t.datetime "start_time"
+    t.datetime "end_time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artisan_id"], name: "index_availability_slots_on_artisan_id"
+  end
+
   create_table "clients", force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
@@ -95,4 +104,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_26_110526) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "availability_slots", "artisans"
 end

@@ -28,6 +28,8 @@ Rails.application.routes.draw do
     delete 'me', to: 'profiles#destroy'
     delete 'delete_project_image/:image_id', to: 'profiles#delete_project_image'
     get 'me/plan_info', to: 'profiles#plan_info'
+    
+    resources :availability_slots, only: [:index, :create, :update, :destroy]
   end
 
   resources :artisans, only: [:index, :show]

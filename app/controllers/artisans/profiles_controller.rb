@@ -18,8 +18,7 @@ module Artisans
           insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
           avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
           description: artisan.description,
-          images_urls: artisan.project_images.map { |img| url_for(img) }
-
+          images_urls: artisan.project_images.map { |img| url_for(img) },
         }
       }, status: :ok
     end
@@ -38,7 +37,6 @@ module Artisans
       # Suppression des images envoyées en deleted_image_urls
       if permitted_params[:deleted_image_urls].present?
         permitted_params[:deleted_image_urls].each do |url|
-          # Trouver l'image par son URL (ActiveStorage)
           image = artisan.project_images.find do |img|
             Rails.application.routes.url_helpers.rails_blob_url(img, only_path: false) == url
           end
@@ -62,6 +60,7 @@ module Artisans
         artisan.project_images.attach(permitted_params[:project_images])
       end
 
+      # On prépare les params à mettre à jour (sans les fichiers et images)
       artisan_params = permitted_params.except(:kbis, :insurance, :avatar, :project_images, :deleted_image_urls)
 
       if artisan.update(artisan_params)
@@ -92,12 +91,12 @@ module Artisans
           render json: {
             artisan: artisan.as_json(only: [
               :company_name, :address, :expertise, :siren,
-              :email, :phone, :membership_plan
+              :email, :phone, :membership_plan, :description
             ]).merge({
               kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
               insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
               avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
-              images_urls: artisan.project_images.map { |img| url_for(img) }
+              images_urls: artisan.project_images.map { |img| url_for(img) },
             })
           }
         end
@@ -110,7 +109,7 @@ module Artisans
       artisan = current_artisan
       image_id = params[:image_id]
 
-      image = artisan.project_images.find { |img| img.id.to_s == image_id }
+      image = artisan.project_images.find_by(id: image_id)
       if image
         image.purge
         render json: { message: 'Image supprimée' }, status: :ok
@@ -151,9 +150,4 @@ module Artisans
     end
   end
 end
-
-
-
-
-
 
