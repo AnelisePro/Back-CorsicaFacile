@@ -5,6 +5,23 @@ module Artisans
     def show
       artisan = current_artisan
 
+      plan_info = nil
+      prices = {
+        'Standard' => 'price_1RO49eRs43niZdSJXoxviAQo',
+        'Pro' => 'price_1RO49tRs43niZdSJkubGXybT',
+        'Premium' => 'price_1RO4A9Rs43niZdSJTEnzSTMt'
+      }
+      price_id = prices[artisan.membership_plan]
+
+      if price_id
+        price = Stripe::Price.retrieve(price_id)
+        plan_info = {
+          amount: price.unit_amount,
+          currency: price.currency,
+          interval: price.recurring&.interval || 'one_time'
+        }
+      end
+
       render json: {
         artisan: {
           company_name: artisan.company_name,
@@ -19,7 +36,8 @@ module Artisans
           avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
           description: artisan.description,
           images_urls: artisan.project_images.map { |img| url_for(img) },
-        }
+        },
+        plan_info: plan_info
       }, status: :ok
     end
 
@@ -34,13 +52,9 @@ module Artisans
         project_images: [], deleted_image_urls: [], expertise_names: []
       )
 
-      # Gérer les expertises
       expertise_names = permitted_params.delete(:expertise_names)
-      if expertise_names.present?
-        artisan.expertises = Expertise.where(name: expertise_names)
-      end
+      artisan.expertises = Expertise.where(name: expertise_names) if expertise_names.present?
 
-      # Suppression des images
       if permitted_params[:deleted_image_urls].present?
         permitted_params[:deleted_image_urls].each do |url|
           image = artisan.project_images.find do |img|
