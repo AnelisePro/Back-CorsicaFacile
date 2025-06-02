@@ -10,7 +10,9 @@ module Clients
 
       render json: {
         message: 'Client connecté avec succès',
-        client: resource.as_json(only: [:id, :first_name, :last_name, :email, :birthdate, :phone]),
+        client: resource.as_json(only: [:id, :first_name, :last_name, :email, :birthdate, :phone]).merge(
+          avatar_url: resource.avatar.attached? ? url_for(resource.avatar) : nil
+        ),
       }, status: :ok
     end
 

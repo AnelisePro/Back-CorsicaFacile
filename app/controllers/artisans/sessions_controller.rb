@@ -20,7 +20,8 @@ module Artisans
           phone: artisan.phone,
           verified: artisan.verified,
           kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
-          insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil
+          insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
+          avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil
         },
           token: request.env['warden-jwt_auth.token']
         }, status: :ok
