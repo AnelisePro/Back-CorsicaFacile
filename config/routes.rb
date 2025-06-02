@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get 'expertises/index'
   get 'artisans/index'
   devise_for :clients,
     path: 'clients',
@@ -33,7 +34,7 @@ Rails.application.routes.draw do
   end
 
   resources :artisans, only: [:index, :show]
-
+  get '/api/expertises', to: 'expertises#index'
   post "/stripe/create-checkout-session", to: "payments#create_checkout_session"
   post '/webhooks/stripe', to: 'webhooks#stripe'
 

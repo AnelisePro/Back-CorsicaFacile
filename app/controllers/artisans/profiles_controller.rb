@@ -9,7 +9,7 @@ module Artisans
         artisan: {
           company_name: artisan.company_name,
           address: artisan.address,
-          expertise: artisan.expertise,
+          expertise_names: artisan.expertises.pluck(:name),
           siren: artisan.siren,
           email: artisan.email,
           phone: artisan.phone,
@@ -28,13 +28,19 @@ module Artisans
       previous_plan = artisan.membership_plan
 
       permitted_params = params.require(:artisan).permit(
-        :company_name, :address, :expertise, :siren,
-        :email, :phone, :password, :password_confirmation, :membership_plan,
-        :kbis, :insurance, :avatar, :description, project_images: [],
-        deleted_image_urls: []
+        :company_name, :address, :siren, :email, :phone,
+        :password, :password_confirmation, :membership_plan,
+        :kbis, :insurance, :avatar, :description,
+        project_images: [], deleted_image_urls: [], expertise_names: []
       )
 
-      # Suppression des images envoyées en deleted_image_urls
+      # Gérer les expertises
+      expertise_names = permitted_params.delete(:expertise_names)
+      if expertise_names.present?
+        artisan.expertises = Expertise.where(name: expertise_names)
+      end
+
+      # Suppression des images
       if permitted_params[:deleted_image_urls].present?
         permitted_params[:deleted_image_urls].each do |url|
           image = artisan.project_images.find do |img|
@@ -49,18 +55,13 @@ module Artisans
       artisan.avatar.attach(permitted_params[:avatar]) if permitted_params[:avatar]
 
       if permitted_params[:project_images]
-        existing_images_count = artisan.project_images.count
-        new_images_count = permitted_params[:project_images].size
-
-        if existing_images_count + new_images_count > 10
+        if artisan.project_images.count + permitted_params[:project_images].size > 10
           render json: { error: "Vous ne pouvez pas avoir plus de 10 images au total." }, status: :unprocessable_entity
           return
         end
-
         artisan.project_images.attach(permitted_params[:project_images])
       end
 
-      # On prépare les params à mettre à jour (sans les fichiers et images)
       artisan_params = permitted_params.except(:kbis, :insurance, :avatar, :project_images, :deleted_image_urls)
 
       if artisan.update(artisan_params)
@@ -72,7 +73,6 @@ module Artisans
           }
 
           price_id = prices[artisan.membership_plan]
-
           session = Stripe::Checkout::Session.create(
             payment_method_types: ['card'],
             line_items: [{ price: price_id, quantity: 1 }],
@@ -85,14 +85,14 @@ module Artisans
               membership_plan: artisan.membership_plan
             }
           )
-
           render json: { checkout_url: session.url }
         else
           render json: {
             artisan: artisan.as_json(only: [
-              :company_name, :address, :expertise, :siren,
+              :company_name, :address, :siren,
               :email, :phone, :membership_plan, :description
             ]).merge({
+              expertise_names: artisan.expertises.pluck(:name),
               kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
               insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
               avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
@@ -107,9 +107,7 @@ module Artisans
 
     def delete_project_image
       artisan = current_artisan
-      image_id = params[:image_id]
-
-      image = artisan.project_images.find_by(id: image_id)
+      image = artisan.project_images.find_by(id: params[:image_id])
       if image
         image.purge
         render json: { message: 'Image supprimée' }, status: :ok
@@ -119,8 +117,7 @@ module Artisans
     end
 
     def destroy
-      artisan = current_artisan
-      artisan.destroy
+      current_artisan.destroy
       head :no_content
     end
 
@@ -130,24 +127,20 @@ module Artisans
         'Pro' => 'price_1RO49tRs43niZdSJkubGXybT',
         'Premium' => 'price_1RO4A9Rs43niZdSJTEnzSTMt'
       }
-
       price_id = prices[current_artisan.membership_plan]
-
-      if price_id.nil?
-        render json: { error: 'Plan invalide' }, status: :unprocessable_entity
-        return
-      end
+      return render json: { error: 'Plan invalide' }, status: :unprocessable_entity if price_id.nil?
 
       price = Stripe::Price.retrieve(price_id)
 
-      price_info = {
-        amount: price.unit_amount,
-        currency: price.currency,
-        interval: price.recurring&.interval || 'one_time'
-      }
-
-      render json: { price_info: price_info }, status: :ok
+      render json: {
+        price_info: {
+          amount: price.unit_amount,
+          currency: price.currency,
+          interval: price.recurring&.interval || 'one_time'
+        }
+      }, status: :ok
     end
   end
 end
+
 

@@ -5,13 +5,28 @@ module Artisans
     def create
       form_data = sign_up_params
       membership_plan = form_data[:membership_plan]
+      expertise_name = form_data.delete(:expertise)
 
       @artisan = Artisan.new(form_data.except(:kbis, :insurance))
 
+      # Attacher les fichiers AVANT de sauvegarder pour que validations passent
       @artisan.kbis.attach(form_data[:kbis]) if form_data[:kbis].present?
       @artisan.insurance.attach(form_data[:insurance]) if form_data[:insurance].present?
 
-      if @artisan.save
+      ActiveRecord::Base.transaction do
+        # Sauvegarde artisan sans expertise
+        @artisan.save!
+
+        # Trouve ou crée l'expertise
+        expertise = Expertise.find_or_create_by!(name: expertise_name)
+
+        # Associe l'expertise à l'artisan, sans sauvegarder encore (association en mémoire)
+        @artisan.expertises << expertise
+
+        # Sauvegarde l’artisan à nouveau, maintenant avec expertise associée
+        # On passe skip_validate_expertises pour contourner la validation au premier save
+        @artisan.save!
+
         prices = {
           'Standard' => 'price_1RO49eRs43niZdSJXoxviAQo',
           'Pro' => 'price_1RO49tRs43niZdSJkubGXybT',
@@ -21,8 +36,7 @@ module Artisans
         price_id = prices[membership_plan]
 
         unless price_id
-          @artisan.destroy
-          return render json: { error: 'Formule invalide' }, status: :unprocessable_entity
+          raise ActiveRecord::Rollback, 'Formule invalide'
         end
 
         session = Stripe::Checkout::Session.create(
@@ -41,9 +55,12 @@ module Artisans
         )
 
         render json: { session_id: session.id, message: 'Artisan créé, redirection vers paiement' }, status: :ok
-      else
-        render json: { errors: @artisan.errors.full_messages }, status: :unprocessable_entity
       end
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue ActiveRecord::Rollback
+      @artisan.destroy if @artisan.persisted?
+      render json: { error: 'Formule invalide' }, status: :unprocessable_entity
     end
 
     private
@@ -57,6 +74,8 @@ module Artisans
     end
   end
 end
+
+
 
 
 

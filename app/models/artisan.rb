@@ -11,20 +11,29 @@ class Artisan < ApplicationRecord
 
   has_many_attached :project_images
   has_many :availability_slots, dependent: :destroy
+  has_many :artisan_expertises, dependent: :destroy
+  has_many :expertises, through: :artisan_expertises
 
-  validates :company_name, :address, :expertise, :siren, :email, :phone, presence: true
+  validates :company_name, :address, :siren, :email, :phone, presence: true
+  validate :must_have_at_least_one_expertise, if: :persisted?
   validates :siren, uniqueness: true, format: { with: /\A\d{9}\z/, message: 'doit contenir 9 chiffres' }
   validates :email, uniqueness: true
   validates :phone, format: { with: /\A(\+33|0)[1-9](\d{2}){4}\z/, message: 'doit être un numéro de téléphone valide' }
   validates :password, presence: true, confirmation: true, if: :password_required?
-  validates :kbis, presence: true
-  validates :insurance, presence: true
+
+  # Validation présence uniquement à la création
+  validates :kbis, presence: true, on: :create
+  validates :insurance, presence: true, on: :create
+
   validate :validate_file_types
-  validate :validate_project_images_count
 
   after_save :auto_verify!
 
   private
+
+  def must_have_at_least_one_expertise
+    errors.add(:expertises, "doit avoir au moins une expertise") if expertises.blank?
+  end
 
   def validate_file_types
     if kbis.attached? && !kbis.content_type.in?(%w[application/pdf image/jpeg image/png])
@@ -44,12 +53,6 @@ class Artisan < ApplicationRecord
     end
   end
 
-  def validate_project_images_count
-    if project_images.attached? && project_images.count > 10
-      errors.add(:project_images, "Vous ne pouvez pas attacher plus de 10 images.")
-    end
-  end
-
   def password_required?
     new_record? || password.present?
   end
@@ -60,6 +63,7 @@ class Artisan < ApplicationRecord
     end
   end
 end
+
 
 
 

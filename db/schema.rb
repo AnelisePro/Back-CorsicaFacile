@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_29_130853) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_02_135040) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -42,10 +42,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_29_130853) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "artisan_expertises", force: :cascade do |t|
+    t.bigint "artisan_id", null: false
+    t.bigint "expertise_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artisan_id"], name: "index_artisan_expertises_on_artisan_id"
+    t.index ["expertise_id"], name: "index_artisan_expertises_on_expertise_id"
+  end
+
   create_table "artisans", force: :cascade do |t|
     t.string "company_name"
     t.string "address"
-    t.string "expertise"
     t.string "siren"
     t.string "phone"
     t.boolean "verified", default: false
@@ -90,6 +98,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_29_130853) do
     t.index ["reset_password_token"], name: "index_clients_on_reset_password_token", unique: true
   end
 
+  create_table "expertises", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_expertises_on_name", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -104,5 +119,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_29_130853) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "artisan_expertises", "artisans"
+  add_foreign_key "artisan_expertises", "expertises"
   add_foreign_key "availability_slots", "artisans"
 end

@@ -14,7 +14,7 @@ module Artisans
           artisan: {
           company_name: artisan.company_name,
           address: artisan.address,
-          expertise: artisan.expertise,
+          expertise_names: artisan.expertises.pluck(:name),
           siren: artisan.siren,
           email: artisan.email,
           phone: artisan.phone,
