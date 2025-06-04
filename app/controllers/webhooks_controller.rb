@@ -1,5 +1,6 @@
 class WebhooksController < ApplicationController
-  skip_before_action :verify_authenticity_token
+  include ActionController::RequestForgeryProtection
+  skip_forgery_protection
 
   def stripe
     payload = request.body.read
