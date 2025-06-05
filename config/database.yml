@@ -5,7 +5,7 @@ default: &default
 
 development:
   <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
+  database: corsicafacile_dev
 
 test:
   <<: *default
@@ -14,4 +14,5 @@ test:
 production:
   <<: *default
   url: <%= ENV['DATABASE_URL'] %>
+  sslmode: require
 
