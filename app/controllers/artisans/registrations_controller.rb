@@ -9,9 +9,11 @@ module Artisans
 
       @artisan = Artisan.new(form_data.except(:kbis, :insurance))
 
-      # Attacher les fichiers AVANT de sauvegarder pour que validations passent
+      # Attacher les fichiers avant sauvegarde pour validations
       @artisan.kbis.attach(form_data[:kbis]) if form_data[:kbis].present?
       @artisan.insurance.attach(form_data[:insurance]) if form_data[:insurance].present?
+
+      frontend_url = ENV['FRONTEND_URL'] || 'http://localhost:3000'
 
       ActiveRecord::Base.transaction do
         # Sauvegarde artisan sans expertise
@@ -20,11 +22,10 @@ module Artisans
         # Trouve ou crée l'expertise
         expertise = Expertise.find_or_create_by!(name: expertise_name)
 
-        # Associe l'expertise à l'artisan, sans sauvegarder encore (association en mémoire)
+        # Associe l'expertise à l'artisan (en mémoire)
         @artisan.expertises << expertise
 
-        # Sauvegarde l’artisan à nouveau, maintenant avec expertise associée
-        # On passe skip_validate_expertises pour contourner la validation au premier save
+        # Sauvegarde à nouveau pour valider l’association
         @artisan.save!
 
         prices = {
@@ -47,10 +48,11 @@ module Artisans
           }],
           mode: 'subscription',
           customer_email: @artisan.email,
-          success_url: "http://localhost:3000/auth/login_artisan?payment=success&session_id={CHECKOUT_SESSION_ID}",
-          cancel_url: "http://localhost:3000/",
+          success_url: "#{frontend_url}/auth/login_artisan?payment=success&session_id={CHECKOUT_SESSION_ID}",
+          cancel_url: "#{frontend_url}/",
           metadata: {
-            artisan_id: @artisan.id
+            artisan_id: @artisan.id,
+            membership_plan: membership_plan
           }
         )
 
@@ -74,6 +76,7 @@ module Artisans
     end
   end
 end
+
 
 
 
