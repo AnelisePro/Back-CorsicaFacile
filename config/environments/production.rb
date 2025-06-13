@@ -1,6 +1,11 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  Rails.application.routes.default_url_options = { host: 'front-corsica-facile.vercel.app' }
+  config.action_mailer.default_url_options = Rails.application.routes.default_url_options
+
+  config.action_controller.default_url_options = Rails.application.routes.default_url_options
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.

@@ -2,7 +2,6 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   Rails.application.routes.default_url_options = { host: 'localhost', port: 3001 }
-
   config.action_controller.default_url_options = { host: 'localhost', port: 3001 }
 
 
