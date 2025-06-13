@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  type_prestation: MyString
+  description: MyText
+  schedule: 2025-06-13 15:42:31
+  address: MyString
+  client: one
+
+two:
+  type_prestation: MyString
+  description: MyText
+  schedule: 2025-06-13 15:42:31
+  address: MyString
+  client: two

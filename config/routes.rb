@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   get 'expertises/index'
   get 'artisans/index'
+
   devise_for :clients,
     path: 'clients',
     controllers: {
@@ -21,6 +22,7 @@ Rails.application.routes.draw do
     get 'me', to: 'profiles#show'
     put 'me', to: 'profiles#update'
     delete 'me', to: 'profiles#destroy'
+    resources :besoins, only: [:index, :create, :update, :destroy]
   end
 
   namespace :artisans, defaults: { format: :json } do
@@ -30,6 +32,7 @@ Rails.application.routes.draw do
     delete 'delete_project_image/:image_id', to: 'profiles#delete_project_image'
     get 'me/plan_info', to: 'profiles#plan_info'
     
+    resources :besoins, only: [:index]
     resources :availability_slots, only: [:index, :create, :update, :destroy]
   end
 

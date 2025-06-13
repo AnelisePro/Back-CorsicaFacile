@@ -12,6 +12,7 @@ class Client < ApplicationRecord
   validates :email, presence: true, uniqueness: true
 
   has_one_attached :avatar
+  has_many :besoins, dependent: :destroy
 
   # Custom method to determine when password validation is needed
   def password_required?

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_02_135040) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_13_134231) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -81,6 +81,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_02_135040) do
     t.index ["artisan_id"], name: "index_availability_slots_on_artisan_id"
   end
 
+  create_table "besoins", force: :cascade do |t|
+    t.string "type_prestation"
+    t.text "description"
+    t.datetime "schedule"
+    t.string "address"
+    t.bigint "client_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_besoins_on_client_id"
+  end
+
   create_table "clients", force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
@@ -110,4 +121,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_02_135040) do
   add_foreign_key "artisan_expertises", "artisans"
   add_foreign_key "artisan_expertises", "expertises"
   add_foreign_key "availability_slots", "artisans"
+  add_foreign_key "besoins", "clients"
 end

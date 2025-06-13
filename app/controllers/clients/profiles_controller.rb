@@ -1,4 +1,3 @@
-# app/controllers/clients/profiles_controller.rb
 module Clients
   class ProfilesController < ApplicationController
     before_action :authenticate_client!
