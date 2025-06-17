@@ -5,7 +5,7 @@ class Artisans::BesoinsController < ApplicationController
     besoins = Besoin.with_attached_images.includes(:client).all
     render json: besoins.as_json(
       methods: :image_urls,
-      include: { client: { only: [:id, :name] } }
+      include: { client: { only: [:id, :first_name, :last_name, :email, :phone] } }
     )
   end
 end

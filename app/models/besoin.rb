@@ -7,6 +7,6 @@ class Besoin < ApplicationRecord
 
   # Pour l’API JSON : inclure les URLs des images si besoin
   def image_urls
-    images.map { |img| Rails.application.routes.url_helpers.rails_blob_url(img, only_path: true) }
+    images.map { |img| Rails.application.routes.url_helpers.rails_blob_url(img, host: ENV.fetch("HOST_URL", "http://localhost:3001")) }
   end
 end
