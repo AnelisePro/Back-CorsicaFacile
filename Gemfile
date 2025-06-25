@@ -16,6 +16,7 @@ gem 'devise-jwt'
 gem 'rack-cors'
 gem 'stripe'
 gem 'table_print'
+gem 'aws-sdk-s3', require: false
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
