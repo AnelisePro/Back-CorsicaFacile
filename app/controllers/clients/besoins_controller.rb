@@ -12,7 +12,7 @@ module Clients
     end
 
     def index
-      render json: current_client.besoins.with_attached_images.as_json(methods: :image_urls)
+      render json: current_client.besoins.as_json(methods: :image_urls)
     end
 
     def update
@@ -41,10 +41,11 @@ module Clients
     private
 
     def besoin_params
-      params.require(:besoin).permit(:type_prestation, :description, :schedule, :address, images: [])
+      params.require(:besoin).permit(:type_prestation, :description, :schedule, :address, image_urls: [])
     end
   end
 end
+
 
 
 
