@@ -13,6 +13,7 @@ class Artisan < ApplicationRecord
   has_many :availability_slots, dependent: :destroy
   has_many :artisan_expertises, dependent: :destroy
   has_many :expertises, through: :artisan_expertises
+  has_many :notifications, dependent: :destroy
 
   validates :company_name, :address, :siren, :email, :phone, presence: true
   validate :must_have_at_least_one_expertise, if: :persisted?

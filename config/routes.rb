@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   get 'uploads/presigned_url'
   get 'expertises/index'
   get 'artisans/index'
+  get '/annonces/:id', to: 'annonces#show'
+  get '/artisan-profile/:id', to: 'artisans#show', as: 'artisan-profile'
+  resources :client_notifications, only: [:index, :create, :update]
 
   devise_for :clients,
     path: 'clients',
@@ -32,7 +35,8 @@ Rails.application.routes.draw do
     delete 'me', to: 'profiles#destroy'
     delete 'delete_project_image/:image_id', to: 'profiles#delete_project_image'
     get 'me/plan_info', to: 'profiles#plan_info'
-    
+    get 'notifications', to: 'notifications#index'
+    put 'notifications/:id/read', to: 'notifications#mark_as_read'
     resources :besoins, only: [:index]
     resources :availability_slots, only: [:index, :create, :update, :destroy]
   end

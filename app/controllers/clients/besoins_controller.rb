@@ -5,6 +5,7 @@ module Clients
     def create
       besoin = current_client.besoins.new(besoin_params)
       if besoin.save
+        NotifyArtisansService.new(besoin).call
         render json: besoin_json(besoin), status: :created
       else
         render json: { errors: besoin.errors.full_messages }, status: :unprocessable_entity

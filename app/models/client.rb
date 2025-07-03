@@ -13,6 +13,7 @@ class Client < ApplicationRecord
 
   has_one_attached :avatar
   has_many :besoins, dependent: :destroy
+  has_many :client_notifications, dependent: :destroy
 
   # Custom method to determine when password validation is needed
   def password_required?

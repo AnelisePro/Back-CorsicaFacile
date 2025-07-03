@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_27_125803) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_03_195331) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -93,6 +93,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_27_125803) do
     t.index ["client_id"], name: "index_besoins_on_client_id"
   end
 
+  create_table "client_notifications", force: :cascade do |t|
+    t.bigint "client_id", null: false
+    t.bigint "artisan_id", null: false
+    t.bigint "besoin_id", null: false
+    t.string "message", null: false
+    t.string "link"
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artisan_id"], name: "index_client_notifications_on_artisan_id"
+    t.index ["besoin_id"], name: "index_client_notifications_on_besoin_id"
+    t.index ["client_id"], name: "index_client_notifications_on_client_id"
+  end
+
   create_table "clients", force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
@@ -117,10 +131,28 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_27_125803) do
     t.index ["name"], name: "index_expertises_on_name", unique: true
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "artisan_id", null: false
+    t.string "message"
+    t.string "link"
+    t.boolean "read"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "besoin_id"
+    t.string "status"
+    t.index ["artisan_id"], name: "index_notifications_on_artisan_id"
+    t.index ["besoin_id"], name: "index_notifications_on_besoin_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "artisan_expertises", "artisans"
   add_foreign_key "artisan_expertises", "expertises"
   add_foreign_key "availability_slots", "artisans"
   add_foreign_key "besoins", "clients"
+  add_foreign_key "client_notifications", "artisans"
+  add_foreign_key "client_notifications", "besoins"
+  add_foreign_key "client_notifications", "clients"
+  add_foreign_key "notifications", "artisans"
+  add_foreign_key "notifications", "besoins"
 end
