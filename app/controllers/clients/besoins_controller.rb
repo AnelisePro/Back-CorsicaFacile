@@ -5,21 +5,22 @@ module Clients
     def create
       besoin = current_client.besoins.new(besoin_params)
       if besoin.save
-        render json: besoin.as_json(methods: :image_urls), status: :created
+        render json: besoin_json(besoin), status: :created
       else
         render json: { errors: besoin.errors.full_messages }, status: :unprocessable_entity
       end
     end
 
     def index
-      render json: current_client.besoins.as_json(methods: :image_urls)
+      besoins = current_client.besoins
+      render json: besoins.map { |besoin| besoin_json(besoin) }
     end
 
     def update
       besoin = current_client.besoins.find_by(id: params[:id])
       if besoin
         if besoin.update(besoin_params)
-          render json: besoin.as_json(methods: :image_urls), status: :ok
+          render json: besoin_json(besoin), status: :ok
         else
           render json: { errors: besoin.errors.full_messages }, status: :unprocessable_entity
         end
@@ -41,10 +42,17 @@ module Clients
     private
 
     def besoin_params
-      params.require(:besoin).permit(:type_prestation, :description, :schedule, :address, image_urls: [])
+      params.require(:besoin).permit(:type_prestation, :description, :schedule, :address, :custom_prestation, image_urls: [])
+    end
+
+    def besoin_json(besoin)
+      besoin.as_json(only: [:id, :type_prestation, :description, :schedule, :address]).merge(
+        images: besoin.image_urls
+      )
     end
   end
 end
+
 
 
 

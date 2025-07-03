@@ -49,17 +49,15 @@ module Artisans
         :company_name, :address, :siren, :email, :phone,
         :password, :password_confirmation, :membership_plan,
         :kbis, :insurance, :avatar, :description,
-        project_images: [], deleted_image_urls: [], expertise_names: []
+        project_images: [], deleted_image_ids: [], expertise_names: []
       )
 
       expertise_names = permitted_params.delete(:expertise_names)
       artisan.expertises = Expertise.where(name: expertise_names) if expertise_names.present?
 
-      if permitted_params[:deleted_image_urls].present?
-        permitted_params[:deleted_image_urls].each do |url|
-          image = artisan.project_images.find do |img|
-            Rails.application.routes.url_helpers.rails_blob_url(img, only_path: false) == url
-          end
+      if permitted_params[:deleted_image_ids].present?
+        permitted_params[:deleted_image_ids].each do |id|
+          image = artisan.project_images.find_by(id: id)
           image&.purge
         end
       end
@@ -76,46 +74,48 @@ module Artisans
         artisan.project_images.attach(permitted_params[:project_images])
       end
 
-      artisan_params = permitted_params.except(:kbis, :insurance, :avatar, :project_images, :deleted_image_urls)
+      artisan_params = permitted_params.except(:kbis, :insurance, :avatar, :project_images, :deleted_image_ids)
 
-      if artisan.update(artisan_params)
-        if artisan.membership_plan != previous_plan
-          prices = {
-            'Standard' => 'price_1RO49eRs43niZdSJXoxviAQo',
-            'Pro' => 'price_1RO49tRs43niZdSJkubGXybT',
-            'Premium' => 'price_1RO4A9Rs43niZdSJTEnzSTMt'
-          }
-
-          price_id = prices[artisan.membership_plan]
-          session = Stripe::Checkout::Session.create(
-            payment_method_types: ['card'],
-            line_items: [{ price: price_id, quantity: 1 }],
-            mode: 'subscription',
-            customer_email: artisan.email,
-            success_url: "http://localhost:3000/auth/login_artisan?payment=success&session_id={CHECKOUT_SESSION_ID}",
-            cancel_url: "http://localhost:3000/",
-            metadata: {
-              artisan_id: artisan.id,
-              membership_plan: artisan.membership_plan
-            }
-          )
-          render json: { checkout_url: session.url }
-        else
-          render json: {
-            artisan: artisan.as_json(only: [
-              :company_name, :address, :siren,
-              :email, :phone, :membership_plan, :description
-            ]).merge({
-              expertise_names: artisan.expertises.pluck(:name),
-              kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
-              insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
-              avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
-              images_urls: artisan.project_images.map { |img| url_for(img) },
-            })
-          }
-        end
-      else
+      unless artisan.update(artisan_params)
+        Rails.logger.error("Artisan update errors: #{artisan.errors.full_messages.join(', ')}")
         render json: { errors: artisan.errors.full_messages }, status: :unprocessable_entity
+        return
+      end
+
+      if artisan.membership_plan != previous_plan
+        prices = {
+          'Standard' => 'price_1RO49eRs43niZdSJXoxviAQo',
+          'Pro' => 'price_1RO49tRs43niZdSJkubGXybT',
+          'Premium' => 'price_1RO4A9Rs43niZdSJTEnzSTMt'
+        }
+
+        price_id = prices[artisan.membership_plan]
+        session = Stripe::Checkout::Session.create(
+          payment_method_types: ['card'],
+          line_items: [{ price: price_id, quantity: 1 }],
+          mode: 'subscription',
+          customer_email: artisan.email,
+          success_url: "http://localhost:3000/auth/login_artisan?payment=success&session_id={CHECKOUT_SESSION_ID}",
+          cancel_url: "http://localhost:3000/",
+          metadata: {
+            artisan_id: artisan.id,
+            membership_plan: artisan.membership_plan
+          }
+        )
+        render json: { checkout_url: session.url }
+      else
+        render json: {
+          artisan: artisan.as_json(only: [
+            :company_name, :address, :siren,
+            :email, :phone, :membership_plan, :description
+          ]).merge({
+            expertise_names: artisan.expertises.pluck(:name),
+            kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
+            insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
+            avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
+            images_urls: artisan.project_images.map { |img| url_for(img) },
+          })
+        }
       end
     end
 
@@ -154,7 +154,9 @@ module Artisans
         }
       }, status: :ok
     end
+
   end
 end
+
 
 
