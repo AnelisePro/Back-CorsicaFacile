@@ -31,11 +31,10 @@ module Artisans
           email: artisan.email,
           phone: artisan.phone,
           membership_plan: artisan.membership_plan,
-          kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
-          insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
+          kbis_url: artisan.kbis_url,
+          insurance_url: artisan.insurance_url,
           avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
-          description: artisan.description,
-          images_urls: artisan.project_images.map { |img| url_for(img) },
+          description: artisan.description
         },
         plan_info: plan_info
       }, status: :ok
@@ -48,36 +47,20 @@ module Artisans
       permitted_params = params.require(:artisan).permit(
         :company_name, :address, :siren, :email, :phone,
         :password, :password_confirmation, :membership_plan,
-        :kbis, :insurance, :avatar, :description,
-        project_images: [], deleted_image_ids: [], expertise_names: []
+        :kbis_url, :insurance_url, :avatar, :description,
+        expertise_names: []
       )
 
       expertise_names = permitted_params.delete(:expertise_names)
       artisan.expertises = Expertise.where(name: expertise_names) if expertise_names.present?
 
-      if permitted_params[:deleted_image_ids].present?
-        permitted_params[:deleted_image_ids].each do |id|
-          image = artisan.project_images.find_by(id: id)
-          image&.purge
-        end
-      end
-
-      artisan.kbis.attach(permitted_params[:kbis]) if permitted_params[:kbis]
-      artisan.insurance.attach(permitted_params[:insurance]) if permitted_params[:insurance]
+      # Gestion de l'avatar (ActiveStorage)
       artisan.avatar.attach(permitted_params[:avatar]) if permitted_params[:avatar]
 
-      if permitted_params[:project_images]
-        if artisan.project_images.count + permitted_params[:project_images].size > 10
-          render json: { error: "Vous ne pouvez pas avoir plus de 10 images au total." }, status: :unprocessable_entity
-          return
-        end
-        artisan.project_images.attach(permitted_params[:project_images])
-      end
-
-      artisan_params = permitted_params.except(:kbis, :insurance, :avatar, :project_images, :deleted_image_ids)
+      # Update autres attributs
+      artisan_params = permitted_params.except(:avatar, :expertise_names)
 
       unless artisan.update(artisan_params)
-        Rails.logger.error("Artisan update errors: #{artisan.errors.full_messages.join(', ')}")
         render json: { errors: artisan.errors.full_messages }, status: :unprocessable_entity
         return
       end
@@ -107,26 +90,13 @@ module Artisans
         render json: {
           artisan: artisan.as_json(only: [
             :company_name, :address, :siren,
-            :email, :phone, :membership_plan, :description
+            :email, :phone, :membership_plan, :description,
+            :kbis_url, :insurance_url
           ]).merge({
             expertise_names: artisan.expertises.pluck(:name),
-            kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
-            insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
-            avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil,
-            images_urls: artisan.project_images.map { |img| url_for(img) },
+            avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil
           })
         }
-      end
-    end
-
-    def delete_project_image
-      artisan = current_artisan
-      image = artisan.project_images.find_by(id: params[:image_id])
-      if image
-        image.purge
-        render json: { message: 'Image supprimée' }, status: :ok
-      else
-        render json: { error: 'Image introuvable' }, status: :not_found
       end
     end
 
@@ -154,9 +124,13 @@ module Artisans
         }
       }, status: :ok
     end
-
   end
 end
+
+
+
+
+
 
 
 

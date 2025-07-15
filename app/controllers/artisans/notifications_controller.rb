@@ -36,6 +36,16 @@ class Artisans::NotificationsController < ApplicationController
       render json: { success: false, errors: notification.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
+  def destroy
+    notification = current_artisan.notifications.find(params[:id])
+    
+    if notification.destroy
+      render json: { success: true, message: 'Notification supprimée avec succès' }
+    else
+      render json: { success: false, errors: notification.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
 end
 
 

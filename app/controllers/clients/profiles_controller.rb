@@ -12,8 +12,7 @@ module Clients
     def update
       permitted_params = params.require(:client).permit(
         :first_name, :last_name, :email, :birthdate, :phone,
-        :password, :password_confirmation,
-        :avatar
+        :password, :password_confirmation, :avatar_url
       )
 
       if current_client.update(permitted_params)
@@ -33,10 +32,9 @@ module Clients
     private
 
     def client_json(client)
-      client.as_json(only: [:id, :first_name, :last_name, :email, :birthdate, :phone]).merge(
-        avatar_url: client.avatar.attached? ? url_for(client.avatar) : nil
-      )
+      client.as_json(only: [:id, :first_name, :last_name, :email, :birthdate, :phone, :avatar_url])
     end
   end
 end
+
 

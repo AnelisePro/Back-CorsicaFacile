@@ -19,8 +19,8 @@ module Artisans
           email: artisan.email,
           phone: artisan.phone,
           verified: artisan.verified,
-          kbis_url: artisan.kbis.attached? ? url_for(artisan.kbis) : nil,
-          insurance_url: artisan.insurance.attached? ? url_for(artisan.insurance) : nil,
+          kbis_url: artisan.kbis_url,
+          insurance_url: artisan.insurance_url,
           avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil
         },
           token: request.env['warden-jwt_auth.token']

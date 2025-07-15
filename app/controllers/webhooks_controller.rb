@@ -57,7 +57,8 @@ class WebhooksController < ApplicationController
       stripe_customer_id: customer_id,
       stripe_subscription_id: subscription_id,
       membership_plan: membership_plan,
-      verified: true
+      verified: true,
+      subscription_started_at: Time.current
     )
 
     if updated

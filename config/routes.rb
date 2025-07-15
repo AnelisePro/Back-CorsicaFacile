@@ -4,7 +4,8 @@ Rails.application.routes.draw do
   get 'artisans/index'
   get '/annonces/:id', to: 'annonces#show'
   get '/artisan-profile/:id', to: 'artisans#show', as: 'artisan-profile'
-  resources :client_notifications, only: [:index, :create, :update]
+  resources :client_notifications, only: [:index, :create, :update, :destroy]
+  get '/client_notifications/check', to: 'client_notifications#check_response'
 
   devise_for :clients,
     path: 'clients',
@@ -33,12 +34,14 @@ Rails.application.routes.draw do
     get 'me', to: 'profiles#show'
     put 'me', to: 'profiles#update'
     delete 'me', to: 'profiles#destroy'
-    delete 'delete_project_image/:image_id', to: 'profiles#delete_project_image'
     get 'me/plan_info', to: 'profiles#plan_info'
     get 'notifications', to: 'notifications#index'
     put 'notifications/:id/read', to: 'notifications#mark_as_read'
+    delete 'notifications/:id', to: 'notifications#destroy'
     resources :besoins, only: [:index]
     resources :availability_slots, only: [:index, :create, :update, :destroy]
+    resource :profile, only: [:show, :update, :destroy]
+    resources :project_images, only: [:index, :create, :destroy]
   end
 
   resources :artisans, only: [:index, :show]

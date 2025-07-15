@@ -7,11 +7,8 @@ module Artisans
       membership_plan = form_data[:membership_plan]
       expertise_name = form_data.delete(:expertise)
 
-      @artisan = Artisan.new(form_data.except(:kbis, :insurance))
-
-      # Attacher les fichiers avant sauvegarde pour validations
-      @artisan.kbis.attach(form_data[:kbis]) if form_data[:kbis].present?
-      @artisan.insurance.attach(form_data[:insurance]) if form_data[:insurance].present?
+      @artisan = Artisan.new(form_data)
+      @artisan.subscription_started_at = Time.current
 
       frontend_url = ENV['FRONTEND_URL'] || 'http://localhost:3000'
 
@@ -70,7 +67,7 @@ module Artisans
     def sign_up_params
       params.require(:artisan).permit(
         :company_name, :address, :expertise, :siren,
-        :kbis, :insurance, :email, :phone, :membership_plan,
+        :kbis_url, :insurance_url, :email, :phone, :membership_plan,
         :password, :password_confirmation
       )
     end

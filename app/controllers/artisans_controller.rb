@@ -43,12 +43,17 @@ class ArtisansController < ApplicationController
     ).merge(
       avatar_url: @artisan.avatar.attached? ? url_for(@artisan.avatar) : nil,
       expertise_names: @artisan.expertises.pluck(:name),
-      images_urls: @artisan.project_images.map { |img| url_for(img) },
       availability_slots: @artisan.availability_slots.map do |slot|
         {
           id: slot.id,
           start_time: slot.start_time,
           end_time: slot.end_time
+        }
+      end,
+      project_images: @artisan.project_images.map do |image|
+        {
+          id: image.id,
+          image_url: url_for(image.image)
         }
       end
     )
@@ -63,6 +68,7 @@ class ArtisansController < ApplicationController
     end
   end
 end
+
 
 
 

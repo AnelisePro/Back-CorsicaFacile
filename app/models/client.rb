@@ -10,6 +10,7 @@ class Client < ApplicationRecord
   validates :birthdate, presence: true
   validates :phone, presence: true, format: { with: /\A(\+33|0)[1-9](\d{2}){4}\z/, message: 'doit être un numéro de téléphone valide' }
   validates :email, presence: true, uniqueness: true
+  validates :avatar_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: "doit être une URL valide" }, allow_blank: true
 
   has_one_attached :avatar
   has_many :besoins, dependent: :destroy
@@ -20,3 +21,4 @@ class Client < ApplicationRecord
     new_record? || password.present?
   end
 end
+
