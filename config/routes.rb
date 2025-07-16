@@ -28,6 +28,12 @@ Rails.application.routes.draw do
     put 'me', to: 'profiles#update'
     delete 'me', to: 'profiles#destroy'
     resources :besoins, only: [:index, :create, :update, :destroy]
+    resources :conversations, only: [:index, :create, :show] do
+      member do
+        post :send_message
+        put :mark_as_read
+      end
+    end
   end
 
   namespace :artisans, defaults: { format: :json } do
@@ -42,6 +48,12 @@ Rails.application.routes.draw do
     resources :availability_slots, only: [:index, :create, :update, :destroy]
     resource :profile, only: [:show, :update, :destroy]
     resources :project_images, only: [:index, :create, :destroy]
+    resources :conversations, only: [:index, :create, :show] do
+      member do
+        post :send_message
+        put :mark_as_read
+      end
+    end
   end
 
   resources :artisans, only: [:index, :show]

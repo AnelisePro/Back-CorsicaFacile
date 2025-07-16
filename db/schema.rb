@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_15_172624) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_16_150716) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -128,11 +128,39 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_15_172624) do
     t.index ["reset_password_token"], name: "index_clients_on_reset_password_token", unique: true
   end
 
+  create_table "conversations", force: :cascade do |t|
+    t.bigint "client_id", null: false
+    t.bigint "artisan_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artisan_id"], name: "index_conversations_on_artisan_id"
+    t.index ["client_id", "artisan_id"], name: "index_conversations_on_client_id_and_artisan_id", unique: true
+    t.index ["client_id"], name: "index_conversations_on_client_id"
+  end
+
   create_table "expertises", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_expertises_on_name", unique: true
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.text "content", null: false
+    t.bigint "conversation_id", null: false
+    t.string "sender_type", null: false
+    t.bigint "sender_id", null: false
+    t.string "recipient_type", null: false
+    t.bigint "recipient_id", null: false
+    t.boolean "read", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id", "created_at"], name: "index_messages_on_conversation_id_and_created_at"
+    t.index ["conversation_id"], name: "index_messages_on_conversation_id"
+    t.index ["recipient_type", "recipient_id"], name: "index_messages_on_recipient"
+    t.index ["recipient_type", "recipient_id"], name: "index_messages_on_recipient_type_and_recipient_id"
+    t.index ["sender_type", "sender_id"], name: "index_messages_on_sender"
+    t.index ["sender_type", "sender_id"], name: "index_messages_on_sender_type_and_sender_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -164,6 +192,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_15_172624) do
   add_foreign_key "client_notifications", "artisans"
   add_foreign_key "client_notifications", "besoins"
   add_foreign_key "client_notifications", "clients"
+  add_foreign_key "conversations", "artisans"
+  add_foreign_key "conversations", "clients"
+  add_foreign_key "messages", "conversations"
   add_foreign_key "notifications", "artisans"
   add_foreign_key "notifications", "besoins"
   add_foreign_key "project_images", "artisans"
