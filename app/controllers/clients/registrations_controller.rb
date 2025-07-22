@@ -12,6 +12,8 @@ module Clients
     # Réponse après l'inscription réussie ou échouée
     def respond_with(resource, _opts = {})
       if resource.persisted?
+        ClientMailer.welcome_email(resource).deliver_now
+        
         render json: {
           message: 'Client inscrit avec succès',
           client: resource,

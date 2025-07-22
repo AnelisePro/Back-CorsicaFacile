@@ -20,6 +20,7 @@ gem 'aws-sdk-s3'
 gem 'dotenv-rails'
 gem 'open-uri'
 gem 'whenever', require: false
+gem 'letter_opener', group: :development
 
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]

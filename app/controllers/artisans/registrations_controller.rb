@@ -25,6 +25,9 @@ module Artisans
         # Sauvegarde à nouveau pour valider l’association
         @artisan.save!
 
+        # Envoi de l'email de bienvenue
+        ArtisanMailer.welcome_email(@artisan).deliver_now
+
         prices = {
           'Standard' => 'price_1RO49eRs43niZdSJXoxviAQo',
           'Pro' => 'price_1RO49tRs43niZdSJkubGXybT',

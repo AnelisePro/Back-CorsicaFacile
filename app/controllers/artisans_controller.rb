@@ -22,12 +22,15 @@ class ArtisansController < ApplicationController
     end
 
     render json: artisans.map { |artisan|
-      artisan.as_json(only: [:id, :company_name, :address, :description]).merge({
+      artisan.as_json(
+        only: [:id, :company_name, :address, :description, :membership_plan]
+      ).merge({
         expertise_names: artisan.expertises.pluck(:name),
         avatar_url: artisan.avatar.attached? ? url_for(artisan.avatar) : nil
       })
     }
   end
+
 
   def show
     render json: @artisan.as_json(
