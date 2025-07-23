@@ -80,6 +80,15 @@ module Artisans
     end
 
     def destroy
+      artisan_data = {
+        company_name: current_artisan.company_name,
+        email: current_artisan.email,
+        membership_plan: current_artisan.membership_plan
+      }
+      
+      # Envoyer l'email AVANT la suppression
+      ArtisanMailer.account_deleted_email(current_artisan).deliver_now
+
       current_artisan.destroy
       head :no_content
     end

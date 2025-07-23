@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body { font-family: Nunito, sans-serif; line-height: 1.6; color: rgb(94, 62, 35); }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: rgb(254, 251, 244); }
+      .header { background-color: rgb(52, 152, 219); padding: 20px; text-align: center; border-radius: 5px; color: white; }
+      .content { padding: 20px 0; }
+      .footer { font-size: 12px; color: rgb(94, 62, 35); text-align: center; margin-top: 30px; }
+      .warning { background-color: rgb(129, 160, 74); color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+      .highlight { color: rgb(52, 152, 219); font-weight: bold; }
+      ul { background-color: white; padding: 15px; border-radius: 5px; border-left: 4px solid rgb(129, 160, 74); }
+      strong { color: rgb(94, 62, 35); }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1 style="color: #FEFBF4;">Compte supprimé</h1>
+      </div>
+      
+      <div class="content">
+        <p>Bonjour <%= @client.first_name %> <%= @client.last_name %>,</p>
+        
+        <p>Nous vous confirmons que votre compte CorsicaFacile a été <strong>définitivement supprimé</strong> le <%= Date.current.strftime("%d/%m/%Y") %>.</p>
+        
+        <p><strong>Récapitulatif de votre compte :</strong></p>
+        <ul>
+          <li><strong>Nom :</strong> <%= @client.first_name %> <%= @client.last_name %></li>
+          <li><strong>Email :</strong> <%= @client.email %></li>
+          <li><strong>Date de suppression :</strong> <%= Date.current.strftime("%d/%m/%Y") %></li>
+        </ul>
+        
+        <p>Toutes vos données personnelles ont été supprimées de nos serveurs conformément au RGPD.</p>
+        
+        <p>Nous sommes désolés de vous voir partir et espérons vous revoir bientôt sur CorsicaFacile !</p>
+        
+        <p>Si vous souhaitez créer un nouveau compte, vous pouvez le faire à tout moment sur notre plateforme.</p>
+      </div>
+      
+      <div class="footer">
+        <p>L'équipe de CorsicaFacile</p>
+      </div>
+    </div>
+  </body>
+</html>

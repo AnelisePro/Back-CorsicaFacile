@@ -25,6 +25,16 @@ module Clients
     end
 
     def destroy
+      client_email = current_client.email
+      client_data = {
+        first_name: current_client.first_name,
+        last_name: current_client.last_name,
+        email: current_client.email
+      }
+      
+      # Envoyer l'email AVANT la suppression
+      ClientMailer.account_deleted_email(current_client).deliver_now
+      
       current_client.destroy
       head :no_content
     end
