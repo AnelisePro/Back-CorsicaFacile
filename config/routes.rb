@@ -28,6 +28,8 @@ Rails.application.routes.draw do
     namespace :v1 do
       post 'password_resets/artisan', to: 'password_resets#create_artisan'
       post 'password_resets/client', to: 'password_resets#create_client'
+      put 'password_resets/artisan/update', to: 'password_resets#update_artisan'
+      put 'password_resets/client/update', to: 'password_resets#update_client'
     end
   end
 

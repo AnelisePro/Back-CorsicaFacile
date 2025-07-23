@@ -65,6 +65,44 @@ class Api::V1::PasswordResetsController < ApplicationController
     }, status: :internal_server_error
   end
 
+  def update_client
+    client = Client.find_by(reset_password_token: params[:token])
+    
+    if client && client.reset_password_sent_at > 2.hours.ago
+      if client.update(
+        password: params[:password],
+        password_confirmation: params[:password_confirmation],
+        reset_password_token: nil,
+        reset_password_sent_at: nil
+      )
+        render json: { message: 'Mot de passe mis à jour avec succès' }
+      else
+        render json: { message: client.errors.full_messages.join(', ') }, status: :unprocessable_entity
+      end
+    else
+      render json: { message: 'Token invalide ou expiré' }, status: :unprocessable_entity
+    end
+  end
+
+  def update_artisan
+    artisan = Artisan.find_by(reset_password_token: params[:token])
+    
+    if artisan && artisan.reset_password_sent_at > 2.hours.ago
+      if artisan.update(
+        password: params[:password],
+        password_confirmation: params[:password_confirmation],
+        reset_password_token: nil,
+        reset_password_sent_at: nil
+      )
+        render json: { message: 'Mot de passe mis à jour avec succès' }
+      else
+        render json: { message: artisan.errors.full_messages.join(', ') }, status: :unprocessable_entity
+      end
+    else
+      render json: { message: 'Token invalide ou expiré' }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def validate_email_format
