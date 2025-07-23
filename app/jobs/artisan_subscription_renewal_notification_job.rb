@@ -29,8 +29,11 @@ class ArtisanSubscriptionRenewalNotificationJob
       )
       .distinct
 
-    # Création des notifications
+    # Création des notifications ET envoi d'email
     artisans_to_notify.find_each do |artisan|
+      months_remaining = ((artisan.subscription_started_at + 1.year - Date.today) / 30).to_i
+      
+      # Créer la notification dans l'app
       Notification.create!(
         notifiable: artisan,
         title: notification_title(artisan.subscription_started_at),
@@ -38,6 +41,14 @@ class ArtisanSubscriptionRenewalNotificationJob
         read: false,
         notification_type: :subscription_renewal
       )
+      
+      # 🆕 ENVOYER L'EMAIL
+      begin
+        ArtisanMailer.document_renewal_reminder(artisan, months_remaining).deliver_now
+        Rails.logger.info "Email de rappel envoyé à #{artisan.email} (#{months_remaining} mois restants)"
+      rescue => e
+        Rails.logger.error "Erreur envoi email de rappel à #{artisan.email}: #{e.message}"
+      end
     end
   end
 
@@ -90,6 +101,7 @@ class ArtisanSubscriptionRenewalNotificationJob
     end
   end
 end
+
 
 
 

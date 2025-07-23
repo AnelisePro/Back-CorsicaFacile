@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body { font-family: Nunito, sans-serif; line-height: 1.6; color: rgb(94, 62, 35); }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: rgb(254, 251, 244); }
+      .header { background-color: rgb(52, 152, 219); padding: 20px; text-align: center; border-radius: 5px; color: white; }
+      .content { padding: 20px 0; }
+      .footer { font-size: 12px; color: rgb(94, 62, 35); text-align: center; margin-top: 30px; }
+      .cta-button { 
+        display: inline-block; 
+        background-color: rgb(129, 160, 74); 
+        color: white !important; 
+        padding: 15px 30px; 
+        text-decoration: none; 
+        border-radius: 5px; 
+        font-weight: bold;
+        margin: 20px 0;
+      }
+      .urgent { background-color: rgb(220, 20, 60); padding: 15px; border-radius: 5px; margin: 15px 0; color: white; }
+      .warning { background-color: rgb(255, 193, 7); padding: 15px; border-radius: 5px; margin: 15px 0; color: rgb(94, 62, 35); }
+      .info { background-color: rgb(17, 158, 218); padding: 15px; border-radius: 5px; margin: 15px 0; color: white; }
+      .document-list { 
+        background-color: white; 
+        padding: 20px; 
+        border-radius: 5px; 
+        border-left: 4px solid rgb(52, 152, 219);
+        margin: 20px 0;
+      }
+      .document-item {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+        padding: 10px;
+        background-color: rgb(248, 249, 250);
+        border-radius: 3px;
+      }
+      .document-icon { margin-right: 10px; font-size: 18px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>
+          <% case @months_remaining %>
+          <% when 0 %>
+            🔴 Mise à jour urgente requise
+          <% when 1 %>
+            ⚠️ Mise à jour dans 1 mois
+          <% else %>
+            📅 Rappel de mise à jour
+          <% end %>
+        </h1>
+      </div>
+      
+      <div class="content">
+        <p>Bonjour <strong><%= @company_name %></strong>,</p>
+        
+        <% case @months_remaining %>
+        <% when 0 %>
+          <div class="urgent">
+            <p><strong>🚨 ACTION IMMÉDIATE REQUISE</strong></p>
+            <p>Votre abonnement CorsicaFacile expire <strong>ce mois-ci</strong>. 
+               Vous devez mettre à jour vos documents <strong>dès maintenant</strong> 
+               pour éviter la suspension de votre compte.</p>
+          </div>
+        <% when 1 %>
+          <div class="warning">
+            <p><strong>⚠️ ACTION REQUISE DANS 1 MOIS</strong></p>
+            <p>Votre abonnement CorsicaFacile expire dans <strong>1 mois</strong>. 
+               Préparez dès maintenant la mise à jour de vos documents.</p>
+          </div>
+        <% else %>
+          <div class="info">
+            <p><strong>📅 RAPPEL ANTICIPÉ</strong></p>
+            <p>Votre abonnement CorsicaFacile expire dans <strong><%= @months_remaining %> mois</strong>. 
+               Il est temps de préparer le renouvellement de vos documents.</p>
+          </div>
+        <% end %>
+
+        <div class="document-list">
+          <h3>📋 Documents à mettre à jour :</h3>
+          
+          <div class="document-item">
+            <div class="document-icon">🏢</div>
+            <div>
+              <strong>KBIS (Extrait K-bis)</strong><br>
+              <small>Document officiel prouvant l'existence juridique de votre entreprise</small>
+            </div>
+          </div>
+          
+          <div class="document-item">
+            <div class="document-icon">🛡️</div>
+            <div>
+              <strong>Attestation d'Assurance Professionnelle</strong><br>
+              <small>Justificatif de votre couverture en responsabilité civile professionnelle</small>
+            </div>
+          </div>
+        </div>
+
+        <p><strong>Pourquoi cette mise à jour est-elle importante ?</strong></p>
+        <ul>
+          <li>✅ <strong>Conformité légale :</strong> Documents obligatoires pour exercer</li>
+          <li>✅ <strong>Confiance clients :</strong> Garantit votre professionnalisme</li>
+          <li>✅ <strong>Continuité de service :</strong> Évite l'interruption de votre compte</li>
+          <li>✅ <strong>Protection juridique :</strong> Couverture en cas de sinistre</li>
+        </ul>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="<%= @dashboard_url %>" class="cta-button">
+            🔄 Mettre à jour mes documents
+          </a>
+        </div>
+
+        <p><strong>📞 Besoin d'aide ?</strong></p>
+        <p>Notre équipe support est là pour vous accompagner dans cette démarche. 
+           N'hésitez pas à nous contacter si vous rencontrez des difficultés.</p>
+
+        <% if @months_remaining == 0 %>
+        <div class="urgent">
+          <p><strong>⏰ ATTENTION :</strong> Passé la date d'expiration, votre profil 
+             sera temporairement désactivé jusqu'à la mise à jour des documents.</p>
+        </div>
+        <% end %>
+
+        <p>Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :</p>
+        <p style="word-break: break-all; background-color: rgb(248, 249, 250); padding: 10px; border-radius: 3px; font-family: monospace;">
+          <%= @dashboard_url %>
+        </p>
+      </div>
+      
+      <div class="footer">
+        <p>L'équipe CorsicaFacile</p>
+      </div>
+    </div>
+  </body>
+</html>
