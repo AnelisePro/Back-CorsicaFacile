@@ -46,7 +46,7 @@ class PaymentsController < ApplicationController
       render json: { error: 'Token invalide' }, status: :unauthorized and return
     end
 
-    sign_in(:artisan, artisan, store: false) # pour que current_artisan fonctionne
+    sign_in(:artisan, artisan, store: false)
   end
 end
 

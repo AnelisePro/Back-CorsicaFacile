@@ -68,7 +68,7 @@ class Api::V1::PasswordResetsController < ApplicationController
   def update_client
     client = Client.find_by(reset_password_token: params[:token])
     
-    if client && client.reset_password_sent_at > 2.hours.ago
+    if client && client.reset_password_sent_at > 24.hours.ago
       if client.update(
         password: params[:password],
         password_confirmation: params[:password_confirmation],
@@ -87,7 +87,7 @@ class Api::V1::PasswordResetsController < ApplicationController
   def update_artisan
     artisan = Artisan.find_by(reset_password_token: params[:token])
     
-    if artisan && artisan.reset_password_sent_at > 2.hours.ago
+    if artisan && artisan.reset_password_sent_at > 24.hours.ago
       if artisan.update(
         password: params[:password],
         password_confirmation: params[:password_confirmation],
