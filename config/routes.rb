@@ -23,6 +23,14 @@ Rails.application.routes.draw do
     },
     defaults: { format: :json }
 
+  # ROUTES POUR LA RÉINITIALISATION DE MOT DE PASSE
+  namespace :api do
+    namespace :v1 do
+      post 'password_resets/artisan', to: 'password_resets#create_artisan'
+      post 'password_resets/client', to: 'password_resets#create_client'
+    end
+  end
+
   namespace :clients, defaults: { format: :json } do
     get 'me', to: 'profiles#show'
     put 'me', to: 'profiles#update'
@@ -66,4 +74,5 @@ Rails.application.routes.draw do
 
   # root "posts#index"
 end
+
 

@@ -1,14 +1,43 @@
-<h1>Bienvenue, <%= @artisan.company_name %>!</h1>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body { font-family: Nunito, sans-serif; line-height: 1.6; color: rgb(94, 62, 35); }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: rgb(254, 251, 244); }
+      .header { background-color: rgb(52, 152, 219); padding: 20px; text-align: center; border-radius: 5px; color: white; }
+      .content { padding: 20px 0; }
+      .footer { font-size: 12px; color: rgb(94, 62, 35); text-align: center; margin-top: 30px; }
+      .warning { background-color: rgb(129, 160, 74); color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+      .highlight { color: rgb(52, 152, 219); font-weight: bold; }
+      ul { background-color: white; padding: 15px; border-radius: 5px; border-left: 4px solid rgb(129, 160, 74); }
+      strong { color: rgb(94, 62, 35); }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1 style="color: #FEFBF4;">Bienvenue !</h1>
+      </div>
 
-<p>Nous sommes ravis de vous accueillir sur CorsicaFacile, où vous pourrez :</p>
-<ul>
-  <li>Accéder à de nouvelles opportunités de projets.</li>
-  <li>Entrer en contact direct avec les clients.</li>
-  <li>Profiter de nos ressources et outils pour optimiser votre activité et développer votre réseau.</li>
-</ul>
+      <div class="content">
+        <h1>Bienvenue, <%= @artisan.company_name %>!</h1>
 
-<p>Pour commencer, n'hésitez pas à compléter votre profil. Votre succès est notre priorité !</p>
+        <p>Nous sommes ravis de vous accueillir sur CorsicaFacile, où vous pourrez :</p>
+        <ul>
+          <li>Accéder à de nouvelles opportunités de projets.</li>
+          <li>Entrer en contact direct avec les clients.</li>
+          <li>Profiter de nos ressources et outils pour optimiser votre activité et développer votre réseau.</li>
+        </ul>
 
-<p>Merci de faire partie de notre communauté !</p>
+        <p>Pour commencer, n'hésitez pas à compléter votre profil. Votre succès est notre priorité !</p>
 
-<p>Cordialement,<br>L'équipe de CorsicaFacile</p>
+        <p>Merci de faire partie de notre communauté !</p>
+      </div>
+
+      <div class="footer">
+        <p>L'équipe de CorsicaFacile</p>
+      </div>
+    </div>
+  </body>
+</html>

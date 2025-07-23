@@ -1,14 +1,43 @@
-<h1>Bienvenue, <%= @client.first_name %> <%= @client.last_name %>!</h1>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body { font-family: Nunito, sans-serif; line-height: 1.6; color: rgb(94, 62, 35); }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: rgb(254, 251, 244); }
+      .header { background-color: rgb(52, 152, 219); padding: 20px; text-align: center; border-radius: 5px; color: white; }
+      .content { padding: 20px 0; }
+      .footer { font-size: 12px; color: rgb(94, 62, 35); text-align: center; margin-top: 30px; }
+      .warning { background-color: rgb(129, 160, 74); color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+      .highlight { color: rgb(52, 152, 219); font-weight: bold; }
+      ul { background-color: white; padding: 15px; border-radius: 5px; border-left: 4px solid rgb(129, 160, 74); }
+      strong { color: rgb(94, 62, 35); }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1 style="color: #FEFBF4;">Bienvenue !</h1>
+      </div>
 
-<p>Merci de vous être inscrit sur CorsicaFacile. Voici ce que vous pouvez faire :</p>
-<ul>
-  <li>Trouvez l'artisan qui correspond à vos besoins grâce à notre moteur de recherche.</li>
-  <li>Expliquez vos besoins en détail via notre formulaire dédié.</li>
-  <li>Donnez vie à vos projets.</li>
-</ul>
+      <div class="content">
+        <h1>Bienvenue, <%= @client.first_name %> <%= @client.last_name %>!</h1>
 
-<p>N'hésitez pas à compléter votre profil pour mieux profiter de nos services. Votre satisfaction est notre priorité !</p>
+        <p>Merci de vous être inscrit sur CorsicaFacile. <strong>Voici ce que vous pouvez faire :</strong></p>
+        <ul>
+          <li>Trouvez l'artisan qui correspond à vos besoins grâce à notre moteur de recherche.</li>
+          <li>Expliquez vos besoins en détail via notre formulaire dédié.</li>
+          <li>Donnez vie à vos projets.</li>
+        </ul>
 
-<p>Merci de faire partie de notre communauté !</p>
+        <p>N'hésitez pas à compléter votre profil pour mieux profiter de nos services. Votre satisfaction est notre priorité !</p>
 
-<p>Cordialement,<br>L'équipe de CorsicaFacile</p>
+        <p>Merci de faire partie de notre communauté !</p>
+      </div>
+
+      <div class="footer">
+        <p>L'équipe de CorsicaFacile</p>
+      </div>
+    </div>
+  </body>
+</html>
