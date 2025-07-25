@@ -9,11 +9,21 @@ module Clients
         last_message = conversation.last_message
         unread_count = conversation.unread_messages_count_for(current_client)
         
+        # Récupérer l'URL de l'avatar de l'artisan
+        artisan_avatar_url = nil
+        if conversation.artisan.avatar.attached?
+          artisan_avatar_url = Rails.application.routes.url_helpers.rails_blob_url(
+            conversation.artisan.avatar,
+            host: request.base_url
+          )
+        end
+        
         {
           id: conversation.id,
           other_user_id: conversation.artisan.id,
           other_user_name: conversation.artisan.company_name,
           other_user_type: 'Artisan',
+          other_user_avatar: artisan_avatar_url,
           last_message: last_message&.content || 'Aucun message',
           last_message_at: last_message&.created_at || conversation.created_at,
           unread_count: unread_count
@@ -38,7 +48,7 @@ module Clients
 
     def show
       conversation = current_client.conversations.find(params[:id])
-      messages = conversation.messages.order(:created_at)
+      messages = conversation.messages.includes(:sender).order(:created_at)
       
       # Marquer comme lu automatiquement
       conversation.messages.where(
@@ -47,6 +57,15 @@ module Clients
       ).update_all(read: true)
       
       messages_data = messages.map do |message|
+        # Récupérer l'URL de l'avatar du sender
+        sender_avatar_url = nil
+        if message.sender.avatar.attached?
+          sender_avatar_url = Rails.application.routes.url_helpers.rails_blob_url(
+            message.sender.avatar,
+            host: request.base_url
+          )
+        end
+        
         {
           id: message.id,
           content: message.content,
@@ -57,6 +76,7 @@ module Clients
           sender_name: message.sender_type == 'Client' ? 
             "#{message.sender.first_name} #{message.sender.last_name}" : 
             message.sender.company_name,
+          sender_avatar: sender_avatar_url,
           created_at: message.created_at.iso8601,
           read: message.read
         }
@@ -82,6 +102,7 @@ module Clients
           recipient_id: message.recipient_id,
           recipient_type: message.recipient_type,
           sender_name: "#{current_client.first_name} #{current_client.last_name}",
+          sender_avatar: current_client.avatar,
           created_at: message.created_at.iso8601,
           read: message.read
         }, status: :created
@@ -121,6 +142,7 @@ module Clients
           other_user_id: conversation.artisan.id,
           other_user_name: conversation.artisan.company_name,
           other_user_type: 'Artisan',
+          other_user_avatar: conversation.artisan.avatar,
           last_message: last_message&.content || 'Aucun message',
           last_message_at: last_message&.created_at || conversation.created_at,
           unread_count: 0

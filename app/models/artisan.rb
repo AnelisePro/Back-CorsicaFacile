@@ -15,7 +15,7 @@ class Artisan < ApplicationRecord
   has_many :conversations, dependent: :destroy
   has_many :sent_messages, as: :sender, class_name: 'Message'
   has_many :received_messages, as: :recipient, class_name: 'Message'
-
+  
   # === VALIDATIONS ===
   validates :company_name, :address, :siren, :email, :phone, presence: true
   validates :kbis_url, presence: true, on: :create
