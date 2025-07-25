@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get 'reviews/create'
   get 'uploads/presigned_url'
   get 'expertises/index'
   get 'artisans/index'
@@ -42,6 +43,12 @@ Rails.application.routes.draw do
       member do
         post :send_message
         put :mark_as_read
+        patch :archive
+        patch :unarchive
+        delete :destroy
+      end
+      collection do
+        get :archived
       end
     end
   end
@@ -62,6 +69,12 @@ Rails.application.routes.draw do
       member do
         post :send_message
         put :mark_as_read
+        patch :archive
+        patch :unarchive
+        delete :destroy
+      end
+      collection do
+        get :archived
       end
     end
   end
@@ -76,5 +89,6 @@ Rails.application.routes.draw do
 
   # root "posts#index"
 end
+
 
 

@@ -8,9 +8,9 @@ class Artisans::BesoinsController < ApplicationController
                    .distinct
     
     render json: besoins.as_json(
-      methods: :image_urls,
+      methods: [:image_urls, :parsed_schedule],
       include: { client: { only: [:id, :first_name, :last_name, :email, :phone, :avatar_url] } }
-    )
+    ).map { |besoin| format_besoin_response(besoin) }
   end
 
   def show
@@ -28,12 +28,26 @@ class Artisans::BesoinsController < ApplicationController
       return
     end
     
-    render json: besoin.as_json(
-      methods: :image_urls,
+    response_data = besoin.as_json(
+      methods: [:image_urls, :parsed_schedule],
       include: { client: { only: [:id, :first_name, :last_name, :email, :phone, :avatar_url] } }
     )
+    
+    render json: format_besoin_response(response_data)
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Besoin non trouvé' }, status: :not_found
   end
+
+  private
+
+  def format_besoin_response(besoin_data)
+    # Remplacer le schedule string par l'objet parsé
+    if besoin_data['parsed_schedule']
+      besoin_data['schedule'] = besoin_data['parsed_schedule']
+      besoin_data.delete('parsed_schedule')
+    end
+    besoin_data
+  end
 end
+
 

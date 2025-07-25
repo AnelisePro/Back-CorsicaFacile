@@ -4,6 +4,9 @@ class Conversation < ApplicationRecord
   has_many :messages, dependent: :destroy
   
   validates :client_id, uniqueness: { scope: :artisan_id }
+
+   scope :active, -> { where(archived: [false, nil]) }
+   scope :archived, -> { where(archived: true) }
   
   def last_message
     messages.order(:created_at).last

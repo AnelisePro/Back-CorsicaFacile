@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_16_150716) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_24_171355) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -133,6 +133,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_150716) do
     t.bigint "artisan_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "archived", default: false
     t.index ["artisan_id"], name: "index_conversations_on_artisan_id"
     t.index ["client_id", "artisan_id"], name: "index_conversations_on_client_id_and_artisan_id", unique: true
     t.index ["client_id"], name: "index_conversations_on_client_id"
@@ -183,6 +184,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_150716) do
     t.index ["artisan_id"], name: "index_project_images_on_artisan_id"
   end
 
+  create_table "reviews", force: :cascade do |t|
+    t.bigint "artisan_id", null: false
+    t.bigint "client_id", null: false
+    t.bigint "besoin_id", null: false
+    t.integer "rating"
+    t.text "comment"
+    t.boolean "mission_success"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artisan_id"], name: "index_reviews_on_artisan_id"
+    t.index ["besoin_id"], name: "index_reviews_on_besoin_id"
+    t.index ["client_id"], name: "index_reviews_on_client_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "artisan_expertises", "artisans"
@@ -198,4 +213,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_150716) do
   add_foreign_key "notifications", "artisans"
   add_foreign_key "notifications", "besoins"
   add_foreign_key "project_images", "artisans"
+  add_foreign_key "reviews", "artisans"
+  add_foreign_key "reviews", "besoins"
+  add_foreign_key "reviews", "clients"
 end

@@ -3,14 +3,11 @@ module Clients
     before_action :authenticate_client!
 
     def index
-      conversations = current_client.conversations.includes(:artisan)
+      conversations = current_client.conversations.active.includes(:artisan, :messages)
       
       conversations_data = conversations.map do |conversation|
-        last_message = conversation.messages.last
-        unread_count = conversation.messages.where(
-          sender_type: 'Artisan',
-          read: false
-        ).count
+        last_message = conversation.last_message
+        unread_count = conversation.unread_messages_count_for(current_client)
         
         {
           id: conversation.id,
@@ -103,6 +100,56 @@ module Clients
       ).update_all(read: true)
       
       render json: { status: 'marked_as_read' }
+    end
+
+    def archive
+      conversation = current_client.conversations.find(params[:id])
+      if conversation.update(archived: true)
+        render json: { status: 'archived', message: 'Conversation archivée avec succès' }
+      else
+        render json: { error: 'Impossible d\'archiver la conversation' }, status: :unprocessable_entity
+      end
+    end
+
+    def archived
+      archived_conversations = current_client.conversations.archived.includes(:artisan, :messages)
+      
+      conversations_data = archived_conversations.map do |conversation|
+        last_message = conversation.last_message
+        {
+          id: conversation.id,
+          other_user_id: conversation.artisan.id,
+          other_user_name: conversation.artisan.company_name,
+          other_user_type: 'Artisan',
+          last_message: last_message&.content || 'Aucun message',
+          last_message_at: last_message&.created_at || conversation.created_at,
+          unread_count: 0
+        }
+      end
+
+      render json: conversations_data
+    end
+
+    def unarchive
+      conversation = current_client.conversations.find(params[:id])
+      if conversation.update(archived: false)
+        render json: { status: 'unarchived', message: 'Conversation désarchivée avec succès' }
+      else
+        render json: { error: 'Impossible de désarchiver la conversation' }, status: :unprocessable_entity
+      end
+    end
+
+    def destroy
+      # Ne filtrez pas les conversations archivées pour la suppression
+      conversation = current_client.conversations.unscoped.find_by(id: params[:id], client_id: current_client.id)
+      
+      if conversation.nil?
+        render json: { error: 'Conversation non trouvée' }, status: :not_found
+        return
+      end
+      
+      conversation.destroy
+      render json: { status: 'deleted', message: 'Conversation supprimée avec succès' }
     end
 
     private
