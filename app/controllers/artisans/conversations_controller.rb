@@ -18,6 +18,7 @@ module Artisans
           other_user_id: conversation.client.id,
           other_user_name: "#{conversation.client.first_name} #{conversation.client.last_name}",
           other_user_type: 'Client',
+          other_user_avatar: conversation.client.avatar.attached? ? url_for(conversation.client.avatar) : nil,
           last_message: last_message&.content || 'Aucun message',
           last_message_at: last_message&.created_at || conversation.created_at,
           unread_count: unread_count
@@ -43,6 +44,7 @@ module Artisans
           other_user_id: conversation.client.id,
           other_user_name: "#{conversation.client.first_name} #{conversation.client.last_name}",
           other_user_type: 'Client',
+          other_user_avatar: conversation.client.avatar.attached? ? url_for(conversation.client.avatar) : nil,
           last_message: last_message&.content || 'Aucun message',
           last_message_at: last_message&.created_at || conversation.created_at,
           unread_count: unread_count,
@@ -62,6 +64,15 @@ module Artisans
         return
       end
 
+      conversation_data = {
+        id: conversation.id,
+        other_user_id: conversation.client.id,
+        other_user_name: "#{conversation.client.first_name} #{conversation.client.last_name}",
+        other_user_type: 'Client',
+        other_user_avatar: conversation.client.avatar.attached? ? url_for(conversation.client.avatar) : nil,
+        archived: conversation.archived?
+      }
+
       messages = conversation.messages.includes(:sender).order(:created_at)
       
       # Marquer comme lu automatiquement seulement si la conversation n'est pas archivée
@@ -73,6 +84,12 @@ module Artisans
       end
       
       messages_data = messages.map do |message|
+        sender_avatar = if message.sender_type == 'Client'
+          message.sender.avatar.attached? ? url_for(message.sender.avatar) : nil
+        else
+          message.sender.avatar.attached? ? url_for(message.sender.avatar) : nil
+        end
+
         {
           id: message.id,
           content: message.content,
@@ -83,12 +100,17 @@ module Artisans
           sender_name: message.sender_type == 'Client' ? 
             "#{message.sender.first_name} #{message.sender.last_name}" : 
             message.sender.company_name,
+          sender_avatar: sender_avatar, # 👈 AJOUTÉ
           created_at: message.created_at.iso8601,
           read: message.read
         }
       end
       
-      render json: messages_data
+      # Retourner les données de conversation ET les messages 👈 MODIFIÉ
+      render json: {
+        conversation: conversation_data,
+        messages: messages_data
+      }
     end
 
     def send_message
