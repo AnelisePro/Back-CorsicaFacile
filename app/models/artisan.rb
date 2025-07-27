@@ -15,8 +15,8 @@ class Artisan < ApplicationRecord
   has_many :conversations, dependent: :destroy
   has_many :sent_messages, as: :sender, class_name: 'Message'
   has_many :received_messages, as: :recipient, class_name: 'Message'
-  
-  # === VALIDATIONS ===
+  has_many :reviews, dependent: :destroy
+
   validates :company_name, :address, :siren, :email, :phone, presence: true
   validates :kbis_url, presence: true, on: :create
   validates :insurance_url, presence: true, on: :create
@@ -28,6 +28,14 @@ class Artisan < ApplicationRecord
 
   after_save :auto_verify!
   before_validation :set_subscription_started_at, on: :create
+
+  def average_rating
+    reviews.average(:rating)&.round(1) || 0
+  end
+
+  def total_reviews
+    reviews.count
+  end
 
   private
 

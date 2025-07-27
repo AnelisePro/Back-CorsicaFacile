@@ -3,6 +3,8 @@ class ClientNotification < ApplicationRecord
   belongs_to :artisan
   belongs_to :besoin
 
+  has_one :review, dependent: :destroy
+
   validates :message, presence: true
   validates :status, inclusion: { in: ['pending', 'accepted', 'refused', 'in_progress', 'completed'] }
   validates :client_id, presence: true

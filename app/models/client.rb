@@ -18,6 +18,7 @@ class Client < ApplicationRecord
   has_many :conversations, dependent: :destroy
   has_many :sent_messages, as: :sender, class_name: 'Message'
   has_many :received_messages, as: :recipient, class_name: 'Message'
+  has_many :reviews, dependent: :destroy
 
   # Custom method to determine when password validation is needed
   def password_required?

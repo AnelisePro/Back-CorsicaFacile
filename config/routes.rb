@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
   get 'reviews/create'
+  get 'reviews/show'
+  get 'reviews/create'
   get 'uploads/presigned_url'
   get 'expertises/index'
   get 'artisans/index'
@@ -7,6 +9,9 @@ Rails.application.routes.draw do
   get '/artisan-profile/:id', to: 'artisans#show', as: 'artisan-profile'
   resources :client_notifications, only: [:index, :create, :update, :destroy]
   get '/client_notifications/check', to: 'client_notifications#check_response'
+  resources :reviews, only: [:create, :show]
+  get 'reviews/for_notification/:notification_id', to: 'reviews#for_notification'
+  get 'artisans/:artisan_id/reviews', to: 'reviews#index'
 
   devise_for :clients,
     path: 'clients',

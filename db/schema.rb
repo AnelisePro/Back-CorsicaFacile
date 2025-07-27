@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_25_113133) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_27_170631) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -70,6 +70,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_25_113133) do
     t.string "kbis_url"
     t.string "insurance_url"
     t.datetime "subscription_started_at"
+    t.string "avatar_url"
     t.index ["email"], name: "index_artisans_on_email", unique: true
     t.index ["reset_password_token"], name: "index_artisans_on_reset_password_token", unique: true
     t.index ["siren"], name: "index_artisans_on_siren", unique: true
@@ -184,6 +185,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_25_113133) do
     t.index ["artisan_id"], name: "index_project_images_on_artisan_id"
   end
 
+  create_table "reviews", force: :cascade do |t|
+    t.bigint "client_id", null: false
+    t.bigint "artisan_id", null: false
+    t.bigint "client_notification_id", null: false
+    t.integer "rating", null: false
+    t.text "comment", null: false
+    t.boolean "intervention_successful"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artisan_id"], name: "index_reviews_on_artisan_id"
+    t.index ["client_id", "artisan_id", "client_notification_id"], name: "index_reviews_unique_per_mission", unique: true
+    t.index ["client_id"], name: "index_reviews_on_client_id"
+    t.index ["client_notification_id"], name: "index_reviews_on_client_notification_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "artisan_expertises", "artisans"
@@ -199,4 +215,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_25_113133) do
   add_foreign_key "notifications", "artisans"
   add_foreign_key "notifications", "besoins"
   add_foreign_key "project_images", "artisans"
+  add_foreign_key "reviews", "artisans"
+  add_foreign_key "reviews", "client_notifications"
+  add_foreign_key "reviews", "clients"
 end
