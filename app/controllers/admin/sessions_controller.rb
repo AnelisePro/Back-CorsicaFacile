@@ -1,5 +1,5 @@
 class Admin::SessionsController < Devise::SessionsController
-  skip_before_action :verify_authenticity_token
+  protect_from_forgery with: :null_session
   respond_to :json
 
   def create
@@ -58,3 +58,4 @@ class Admin::SessionsController < Devise::SessionsController
     JWT.encode(payload, Rails.application.credentials.devise_jwt_secret_key)
   end
 end
+
