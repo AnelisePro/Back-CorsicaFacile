@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_27_170631) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_28_152655) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -40,6 +40,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_27_170631) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "admins", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "role", default: "admin"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_admins_on_email", unique: true
   end
 
   create_table "artisan_expertises", force: :cascade do |t|
@@ -198,6 +210,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_27_170631) do
     t.index ["client_id", "artisan_id", "client_notification_id"], name: "index_reviews_unique_per_mission", unique: true
     t.index ["client_id"], name: "index_reviews_on_client_id"
     t.index ["client_notification_id"], name: "index_reviews_on_client_notification_id"
+  end
+
+  create_table "site_statistics", force: :cascade do |t|
+    t.date "date", null: false
+    t.integer "page_views", default: 0
+    t.integer "unique_visitors", default: 0
+    t.integer "client_signups", default: 0
+    t.integer "artisan_signups", default: 0
+    t.integer "client_logins", default: 0
+    t.integer "artisan_logins", default: 0
+    t.integer "messages_sent", default: 0
+    t.integer "announcements_posted", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date"], name: "index_site_statistics_on_date", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

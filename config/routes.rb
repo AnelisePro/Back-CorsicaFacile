@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :admins
   get 'reviews/create'
   get 'reviews/show'
   get 'reviews/create'
@@ -80,6 +81,25 @@ Rails.application.routes.draw do
       end
       collection do
         get :archived
+      end
+    end
+  end
+
+  namespace :admin do
+    devise_for :admins, controllers: {
+      sessions: 'admin/sessions'
+    }
+    
+    # Nouvelle route pour vérifier le profil
+    get 'profile', to: 'profile#show'
+    
+    get 'dashboard', to: 'dashboard#index'
+    get 'statistics', to: 'statistics#index'
+    
+    resources :users, only: [:index, :show] do
+      member do
+        patch :ban
+        patch :unban
       end
     end
   end
