@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_28_152655) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_29_110147) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -83,6 +83,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_28_152655) do
     t.string "insurance_url"
     t.datetime "subscription_started_at"
     t.string "avatar_url"
+    t.datetime "banned_at"
+    t.integer "banned_by"
     t.index ["email"], name: "index_artisans_on_email", unique: true
     t.index ["reset_password_token"], name: "index_artisans_on_reset_password_token", unique: true
     t.index ["siren"], name: "index_artisans_on_siren", unique: true
@@ -137,6 +139,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_28_152655) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "avatar_url"
+    t.datetime "banned_at"
+    t.integer "banned_by"
     t.index ["email"], name: "index_clients_on_email", unique: true
     t.index ["reset_password_token"], name: "index_clients_on_reset_password_token", unique: true
   end

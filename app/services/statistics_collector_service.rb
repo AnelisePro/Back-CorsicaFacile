@@ -5,8 +5,8 @@ class StatisticsCollectorService
     stat.update!(
       client_signups: Client.where(created_at: date.beginning_of_day..date.end_of_day).count,
       artisan_signups: Artisan.where(created_at: date.beginning_of_day..date.end_of_day).count,
-      messages_sent: Message.where(created_at: date.beginning_of_day..date.end_of_day).count,
-      announcements_posted: Announcement.where(created_at: date.beginning_of_day..date.end_of_day).count
+      messages_sent: Conversation.where(created_at: date.beginning_of_day..date.end_of_day).count,
+      announcements_posted: Besoin.where(created_at: date.beginning_of_day..date.end_of_day).count
     )
   end
   

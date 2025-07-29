@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
-  devise_for :admins
+  # devise_for :admins
+  
   get 'reviews/create'
   get 'reviews/show'
   get 'reviews/create'
@@ -85,14 +86,16 @@ Rails.application.routes.draw do
     end
   end
 
+  # ✅ GARDEZ SEULEMENT CETTE SECTION POUR LES ADMINS
   namespace :admin do
-    devise_for :admins, controllers: {
-      sessions: 'admin/sessions'
-    }
+    devise_for :admins, 
+      controllers: {
+        sessions: 'admin/sessions'
+      },
+      path: '',  # Cela donnera /admin/admins/sign_in
+      defaults: { format: :json }
     
-    # Nouvelle route pour vérifier le profil
     get 'profile', to: 'profile#show'
-    
     get 'dashboard', to: 'dashboard#index'
     get 'statistics', to: 'statistics#index'
     
@@ -111,9 +114,8 @@ Rails.application.routes.draw do
   post '/presigned_url', to: 'uploads#presigned_url'
 
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # root "posts#index"
 end
+
 
 
 

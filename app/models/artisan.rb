@@ -37,6 +37,23 @@ class Artisan < ApplicationRecord
     reviews.count
   end
 
+    # ✅ Méthodes pour la gestion du bannissement
+  def banned?
+    banned_at.present?
+  end
+
+  def ban!(admin_id)
+    update!(banned_at: Time.current, banned_by: admin_id)
+  end
+
+  def unban!
+    update!(banned_at: nil, banned_by: nil)
+  end
+
+  def banned_by_admin
+    Admin.find(banned_by) if banned_by.present?
+  end
+
   private
 
   def must_have_at_least_one_expertise

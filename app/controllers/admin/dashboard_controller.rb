@@ -3,8 +3,8 @@ class Admin::DashboardController < Admin::BaseController
     render json: {
       total_clients: Client.count,
       total_artisans: Artisan.count,
-      total_announcements: Announcement.count,
-      total_messages: Message.count,
+      total_besoins: Besoin.count,
+      total_conversations: Conversation.count,
       recent_signups: recent_signups_data,
       daily_stats: daily_statistics
     }
