@@ -1,5 +1,4 @@
 class Admin::SessionsController < Devise::SessionsController
-  protect_from_forgery with: :null_session
   respond_to :json
 
   def create
@@ -30,7 +29,6 @@ class Admin::SessionsController < Devise::SessionsController
 
   def destroy
     if current_admin
-      # Optionnel: invalider le token côté serveur si tu as une blacklist
       render json: {
         message: 'Déconnexion réussie'
       }, status: :ok
@@ -55,7 +53,9 @@ class Admin::SessionsController < Devise::SessionsController
       exp: 24.hours.from_now.to_i,
       iat: Time.current.to_i
     }
-    JWT.encode(payload, Rails.application.credentials.devise_jwt_secret_key)
+    # ✅ Correction ici
+    JWT.encode(payload, Rails.application.credentials.devise[:jwt_secret_key])
   end
 end
+
 

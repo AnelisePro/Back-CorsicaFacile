@@ -9,7 +9,7 @@ class Admin::BaseController < ApplicationController
     return render json: { error: 'Token manquant' }, status: :unauthorized unless token
     
     begin
-      decoded_token = JWT.decode(token, Rails.application.credentials.devise_jwt_secret_key).first
+      decoded_token = JWT.decode(token, Rails.application.credentials.devise[:jwt_secret_key]).first
       @current_admin = Admin.find(decoded_token['sub'])
     rescue JWT::DecodeError, ActiveRecord::RecordNotFound
       render json: { error: 'Token invalide' }, status: :unauthorized
