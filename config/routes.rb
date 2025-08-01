@@ -86,19 +86,20 @@ Rails.application.routes.draw do
     end
   end
 
-  # ✅ GARDEZ SEULEMENT CETTE SECTION POUR LES ADMINS
+  # POUR LES ADMINS
   namespace :admin do
-    devise_for :admins, 
+    devise_for :admins,
+      path: 'admins',
       controllers: {
         sessions: 'admin/sessions'
       },
-      path: '',  # Cela donnera /admin/admins/sign_in
       defaults: { format: :json }
-    
+
+    # Vos autres routes admin
     get 'profile', to: 'profile#show'
     get 'dashboard', to: 'dashboard#index'
     get 'statistics', to: 'statistics#index'
-    
+
     resources :users, only: [:index, :show] do
       member do
         patch :ban
