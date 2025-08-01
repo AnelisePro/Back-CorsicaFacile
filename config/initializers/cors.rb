@@ -1,6 +1,8 @@
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins %r{\Ahttps:\/\/front-corsica-facile(-\w+)?\.vercel\.app\z}, 'http://localhost:3000'
+    origins %r{\Ahttps:\/\/.*corsicafacile\.fr\z},
+            %r{\Ahttps:\/\/front-corsica-facile(-\w+)?\.vercel\.app\z}, 
+            'http://localhost:3000'
 
     resource '*',
       headers: :any,
