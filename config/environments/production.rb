@@ -76,11 +76,15 @@ Rails.application.configure do
   config.action_mailer.smtp_settings = {
     address:              ENV['SMTP_ADDRESS'],
     port:                 ENV['SMTP_PORT'],
-    domain:               'gmail.com',
+    domain:               'corsicafacile.fr',
     user_name:            ENV['SMTP_USER'],
     password:             ENV['SMTP_PASSWORD'],
     authentication:       'plain',
     enable_starttls_auto: true
+  }
+
+  config.action_mailer.default_options = {
+    from: 'Corsica Facile <support@corsicafacile.fr>'
   }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
