@@ -29,6 +29,77 @@ class Artisan < ApplicationRecord
   after_save :auto_verify!
   before_validation :set_subscription_started_at, on: :create
 
+  # Constantes pour les limites de réponses
+  RESPONSE_LIMITS = {
+    'Standard' => 3,
+    'Pro' => 6,
+    'Premium' => nil # illimité
+  }.freeze
+
+  def can_respond_to_announcement?
+    return false unless verified? && !banned?
+    return true if membership_plan == 'Premium' # Illimité
+
+    monthly_response_count < response_limit
+  end
+
+  def response_limit
+    limit = RESPONSE_LIMITS[membership_plan]
+    if limit.nil? && membership_plan != 'Premium'
+      Rails.logger.warn "Membership plan invalide ou manquant : #{membership_plan}"
+    end
+    limit || 0
+  end
+
+  def remaining_responses
+    return Float::INFINITY if membership_plan == 'Premium'
+
+    [response_limit - monthly_response_count, 0].max
+  end
+
+  def increment_response_count!
+    puts "Avant reset: monthly_response_count = #{monthly_response_count}"
+    reset_monthly_counter_if_needed
+    reload
+    puts "Après reset/reload: monthly_response_count = #{monthly_response_count}"
+    puts "can_respond_to_announcement? = #{can_respond_to_announcement?}"
+    puts "verified? = #{verified?}, banned? = #{banned?}"
+    puts "membership_plan = #{membership_plan}, response_limit = #{response_limit}"
+    
+    if can_respond_to_announcement?
+      puts "Incrémentation en cours..."
+      increment!(:monthly_response_count)
+      puts "Après incrémentation: monthly_response_count = #{monthly_response_count}"
+      true
+    else
+      puts "Ne peut pas répondre"
+      false
+    end
+  end
+
+  def responses_used_percentage
+    return 0 if membership_plan == 'Premium'
+    return 100 if response_limit == 0
+    
+    reset_monthly_counter_if_needed
+    ((monthly_response_count.to_f / response_limit) * 100).round(1)
+  end
+
+  def next_reset_date
+    Time.current.end_of_month + 1.second
+  end
+
+  def reset_monthly_counter_if_needed
+    current_month = Time.current.beginning_of_month
+    return if last_response_reset_at.present? &&
+              last_response_reset_at >= current_month
+
+    update!(
+      monthly_response_count: 0,
+      last_response_reset_at: current_month
+    )
+  end
+
   def average_rating
     reviews.average(:rating)&.round(1) || 0
   end
@@ -37,7 +108,7 @@ class Artisan < ApplicationRecord
     reviews.count
   end
 
-    # ✅ Méthodes pour la gestion du bannissement
+    # Méthodes pour la gestion du bannissement
   def banned?
     banned_at.present?
   end

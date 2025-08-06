@@ -6,6 +6,11 @@ every 1.day, at: '9:00 am' do
   runner "ArtisanSubscriptionRenewalNotificationJob.run"
 end
 
+# Réinitialisation mensuelle du compteur de réponses
+every 1.month, at: 'start of the month at 00:01' do
+  rake "artisans:reset_monthly_counters"
+end
+
 # Configuration pour développement (optionnel)
 if ENV['RAILS_ENV'] == 'development'
   # Exécution plus fréquente pour les tests

@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-  # devise_for :admins
-  
   get 'reviews/create'
   get 'reviews/show'
   get 'reviews/create'
@@ -31,13 +29,24 @@ Rails.application.routes.draw do
     },
     defaults: { format: :json }
 
-  # ROUTES POUR LA RÉINITIALISATION DE MOT DE PASSE
+  # Routes pour la réinitialisation du mot de passe
   namespace :api do
     namespace :v1 do
       post 'password_resets/artisan', to: 'password_resets#create_artisan'
       post 'password_resets/client', to: 'password_resets#create_client'
       put 'password_resets/artisan/update', to: 'password_resets#update_artisan'
       put 'password_resets/client/update', to: 'password_resets#update_client'
+    end
+  end
+
+  # Routes pour afficher les artisans Premium en page d'accueil
+  namespace :api do
+    namespace :v1 do
+      resources :artisans, only: [] do
+        collection do
+          get :premium
+        end
+      end
     end
   end
 
@@ -113,6 +122,12 @@ Rails.application.routes.draw do
   post "/stripe/create-checkout-session", to: "payments#create_checkout_session"
   post '/webhooks/stripe', to: 'webhooks#stripe'
   post '/presigned_url', to: 'uploads#presigned_url'
+
+  resources :announcement_responses, only: [:create] do
+    collection do
+      get :usage_stats
+    end
+  end
 
   get "up" => "rails/health#show", as: :rails_health_check
 end
