@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_05_092803) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_06_151731) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -61,6 +61,22 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_05_092803) do
     t.datetime "updated_at", null: false
     t.index ["artisan_id"], name: "index_artisan_expertises_on_artisan_id"
     t.index ["expertise_id"], name: "index_artisan_expertises_on_expertise_id"
+  end
+
+  create_table "artisan_statistics", force: :cascade do |t|
+    t.bigint "artisan_id", null: false
+    t.date "date"
+    t.integer "profile_views", default: 0
+    t.integer "contact_clicks", default: 0
+    t.json "views_by_hour", default: {}
+    t.json "visitor_locations", default: {}
+    t.json "device_types", default: {}
+    t.float "avg_session_duration", default: 0.0
+    t.integer "return_visitors", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artisan_id", "date"], name: "index_artisan_statistics_on_artisan_id_and_date", unique: true
+    t.index ["artisan_id"], name: "index_artisan_statistics_on_artisan_id"
   end
 
   create_table "artisans", force: :cascade do |t|
@@ -237,6 +253,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_05_092803) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "artisan_expertises", "artisans"
   add_foreign_key "artisan_expertises", "expertises"
+  add_foreign_key "artisan_statistics", "artisans"
   add_foreign_key "availability_slots", "artisans"
   add_foreign_key "besoins", "clients"
   add_foreign_key "client_notifications", "artisans"

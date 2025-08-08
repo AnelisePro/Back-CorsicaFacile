@@ -29,19 +29,16 @@ Rails.application.routes.draw do
     },
     defaults: { format: :json }
 
-  # Routes pour la réinitialisation du mot de passe
+  # Routes API artisans
   namespace :api do
     namespace :v1 do
       post 'password_resets/artisan', to: 'password_resets#create_artisan'
       post 'password_resets/client', to: 'password_resets#create_client'
-      put 'password_resets/artisan/update', to: 'password_resets#update_artisan'
-      put 'password_resets/client/update', to: 'password_resets#update_client'
-    end
-  end
+      put  'password_resets/artisan/update', to: 'password_resets#update_artisan'
+      put  'password_resets/client/update', to: 'password_resets#update_client'
 
-  # Routes pour afficher les artisans Premium en page d'accueil
-  namespace :api do
-    namespace :v1 do
+      resources :artisan_statistics, only: [:index]
+
       resources :artisans, only: [] do
         collection do
           get :premium

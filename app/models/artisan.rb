@@ -16,6 +16,7 @@ class Artisan < ApplicationRecord
   has_many :sent_messages, as: :sender, class_name: 'Message'
   has_many :received_messages, as: :recipient, class_name: 'Message'
   has_many :reviews, dependent: :destroy
+  has_many :artisan_statistics, dependent: :destroy
 
   validates :company_name, :address, :siren, :email, :phone, presence: true
   validates :kbis_url, presence: true, on: :create
@@ -98,6 +99,14 @@ class Artisan < ApplicationRecord
       monthly_response_count: 0,
       last_response_reset_at: current_month
     )
+  end
+
+   def can_view_advanced_stats?
+    membership_plan == 'Premium'
+  end
+  
+  def can_view_basic_stats?
+    %w[Pro Premium].include?(membership_plan)
   end
 
   def average_rating
