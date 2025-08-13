@@ -30,6 +30,7 @@ class Api::V1::ArtisanStatisticsController < ApplicationController
     stats = current_artisan.artisan_statistics.send("current_#{period}")
     
     total_views = stats.sum(:profile_views)
+    unique_visitors = stats.sum(:unique_visitors)
     total_contacts = stats.sum(:contact_clicks)
     conversion_rate = total_views > 0 ? (total_contacts.to_f / total_views * 100).round(2) : 0.0
     
@@ -43,10 +44,12 @@ class Api::V1::ArtisanStatisticsController < ApplicationController
       period: period,
       data: {
         total_profile_views: total_views,
+        unique_visitors: unique_visitors,
         total_contact_clicks: total_contacts,
         conversion_rate: conversion_rate,
         average_rating: average_rating,
-        total_reviews: total_reviews
+        total_reviews: total_reviews,
+        last_updated: Time.current.iso8601
       }
     }
   end
@@ -57,41 +60,63 @@ class Api::V1::ArtisanStatisticsController < ApplicationController
     
     # Évolution dans le temps
     views_evolution = stats.group(:date).sum(:profile_views)
+                          .transform_keys { |date| date.strftime('%d/%m') }
     contacts_evolution = stats.group(:date).sum(:contact_clicks)
+                             .transform_keys { |date| date.strftime('%d/%m') }
     
-    # Agrégation des données JSON
+    # Top locations (limité aux 10 premières)
     all_locations = {}
-    all_devices = {}
-    total_session_duration = 0.0
-    total_return_visitors = 0
-    
     stats.each do |stat|
-      # Locations
-      stat.visitor_locations.each do |location, count|
+      (stat.visitor_locations || {}).each do |location, count|
         all_locations[location] = (all_locations[location] || 0) + count
       end
-      
-      # Devices
-      stat.device_types.each do |device, count|
+    end
+    top_locations = all_locations.sort_by { |_, count| -count }.first(10)
+    
+    # Device breakdown
+    all_devices = {}
+    stats.each do |stat|
+      (stat.device_types || {}).each do |device, count|
         all_devices[device] = (all_devices[device] || 0) + count
       end
-      
-      total_session_duration += stat.avg_session_duration
-      total_return_visitors += stat.return_visitors
     end
     
-    # Distribution des notes
+    # Moyennes
+    avg_session_duration = stats.where('avg_session_duration > 0').average(:avg_session_duration)&.round(1) || 0.0
+    total_return = stats.sum(:return_visitors)
+    total_unique = stats.sum(:unique_visitors)
+    return_rate = total_unique > 0 ? (total_return.to_f / total_unique * 100).round(1) : 0.0
+    
+    # Temps moyen avant contact
+    total_time = stats.sum(:total_time_to_contact)
+    contact_count = stats.sum(:contact_count_for_timing)
+    avg_time_to_contact = contact_count > 0 ? 
+                         ArtisanStatistic.new(total_time_to_contact: total_time, contact_count_for_timing: contact_count)
+                                        .avg_time_to_contact_formatted : "N/A"
+    
+    # Distribution des avis
     reviews_distribution = current_artisan.reviews.group(:rating).count
+    
+    # Heure de pointe
+    all_hours = {}
+    stats.each do |stat|
+      (stat.views_by_hour || {}).each do |hour, count|
+        all_hours[hour.to_i] = (all_hours[hour.to_i] || 0) + count
+      end
+    end
+    peak_hour = all_hours.max_by { |_, count| count }&.first || 12
     
     basic_stats[:data].merge!({
       views_evolution: views_evolution,
       contacts_evolution: contacts_evolution,
-      visitor_locations: all_locations.sort_by { |_, count| -count }.first(10),
+      visitor_locations: top_locations,
       device_breakdown: all_devices,
-      avg_session_duration: stats.count > 0 ? (total_session_duration / stats.count).round(2) : 0.0,
-      return_visitor_rate: calculate_return_rate(stats),
+      avg_session_duration: avg_session_duration,
+      return_visitor_rate: return_rate,
       reviews_distribution: reviews_distribution,
-      avg_time_to_contact: calculate_avg_time_to_contact(period)
+      avg_time_to_contact: avg_time_to_contact,
+      peak_hour: "#{peak_hour}h",
+      views_by_hour: all_hours.sort.to_h
     })
     
     basic_stats[:type] = 'advanced'
@@ -105,16 +130,5 @@ class Api::V1::ArtisanStatisticsController < ApplicationController
       get_basic_statistics(period)
     end
   end
-  
-  def calculate_return_rate(stats)
-    total_views = stats.sum(:profile_views)
-    total_returns = stats.sum(:return_visitors)
-    total_views > 0 ? (total_returns.to_f / total_views * 100).round(2) : 0.0
-  end
-  
-  def calculate_avg_time_to_contact(period)
-    # Logique pour calculer le temps moyen avant premier contact
-    # Ceci nécessiterait un tracking plus avancé
-    "2h 30min" # Placeholder
-  end
 end
+

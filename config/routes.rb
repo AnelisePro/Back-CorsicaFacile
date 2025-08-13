@@ -36,7 +36,10 @@ Rails.application.routes.draw do
       post 'password_resets/client', to: 'password_resets#create_client'
       put  'password_resets/artisan/update', to: 'password_resets#update_artisan'
       put  'password_resets/client/update', to: 'password_resets#update_client'
-
+      post 'tracking/artisans/:artisan_id/view', to: 'tracking#profile_view'
+      post 'tracking/artisans/:artisan_id/contact', to: 'tracking#contact_click'
+      get 'tracking/reverse_geocode', to: 'tracking#reverse_geocode'
+      
       resources :artisan_statistics, only: [:index]
 
       resources :artisans, only: [] do

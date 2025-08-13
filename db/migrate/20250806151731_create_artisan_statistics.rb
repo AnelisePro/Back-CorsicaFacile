@@ -2,7 +2,7 @@ class CreateArtisanStatistics < ActiveRecord::Migration[7.1]
   def change
     create_table :artisan_statistics do |t|
       t.references :artisan, null: false, foreign_key: true
-      t.date :date
+      t.date :date, null: false
       
       # Statistiques de base (Pro + Premium)
       t.integer :profile_views, default: 0

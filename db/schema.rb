@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_06_151731) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_11_084207) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -75,8 +75,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_06_151731) do
     t.integer "return_visitors", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "total_time_to_contact", default: 0
+    t.integer "contact_count_for_timing", default: 0
+    t.integer "unique_visitors", default: 0
     t.index ["artisan_id", "date"], name: "index_artisan_statistics_on_artisan_id_and_date", unique: true
+    t.index ["artisan_id", "date"], name: "index_artisan_stats_on_artisan_and_date"
     t.index ["artisan_id"], name: "index_artisan_statistics_on_artisan_id"
+    t.index ["date"], name: "index_artisan_statistics_on_date"
   end
 
   create_table "artisans", force: :cascade do |t|
