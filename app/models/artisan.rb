@@ -17,6 +17,7 @@ class Artisan < ApplicationRecord
   has_many :received_messages, as: :recipient, class_name: 'Message'
   has_many :reviews, dependent: :destroy
   has_many :artisan_statistics, dependent: :destroy
+  has_many :feedbacks, as: :user, dependent: :destroy
 
   validates :company_name, :address, :siren, :email, :phone, presence: true
   validates :kbis_url, presence: true, on: :create

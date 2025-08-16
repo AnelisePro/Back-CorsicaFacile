@@ -47,6 +47,9 @@ Rails.application.routes.draw do
           get :premium
         end
       end
+
+      resources :feedbacks, only: [:index, :create]
+      get 'auth/current_user', to: 'auth#current_user'
     end
   end
 
@@ -115,6 +118,12 @@ Rails.application.routes.draw do
         patch :unban
       end
     end
+
+      resources :feedbacks, only: [:index, :show, :update, :destroy] do
+        collection do
+          patch :bulk_update
+        end
+      end
   end
 
   resources :artisans, only: [:index, :show]

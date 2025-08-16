@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_11_084207) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_16_212805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -184,6 +184,22 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_11_084207) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_expertises_on_name", unique: true
+  end
+
+  create_table "feedbacks", force: :cascade do |t|
+    t.string "user_type", null: false
+    t.bigint "user_id", null: false
+    t.string "title", null: false
+    t.text "content", null: false
+    t.string "status", default: "pending"
+    t.text "admin_response"
+    t.datetime "responded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_feedbacks_on_created_at"
+    t.index ["status"], name: "index_feedbacks_on_status"
+    t.index ["user_type", "user_id"], name: "index_feedbacks_on_user"
+    t.index ["user_type", "user_id"], name: "index_feedbacks_on_user_type_and_user_id"
   end
 
   create_table "messages", force: :cascade do |t|
