@@ -1,22 +1,26 @@
 class Api::V1::AuthController < ApplicationController
   def current_user
     if client_signed_in?
-      user_data = current_client.as_json(only: [:id, :email, :first_name, :last_name])
-      user_data[:name] = "#{current_client.first_name} #{current_client.last_name}".strip
-      user_data[:user_type] = 'Client'
-      
       render json: {
         authenticated: true,
-        user: user_data
+        user: {
+          id: current_client.id,
+          name: current_client.respond_to?(:first_name) && current_client.respond_to?(:last_name) ?
+                "#{current_client.first_name} #{current_client.last_name}".strip : 
+                current_client.email,
+          email: current_client.email,
+          user_type: 'Client'
+        }
       }
     elsif artisan_signed_in?
-      user_data = current_artisan.as_json(only: [:id, :email, :company_name])
-      user_data[:name] = current_artisan.company_name || 'Artisan'
-      user_data[:user_type] = 'Artisan'
-      
       render json: {
         authenticated: true,
-        user: user_data
+        user: {
+          id: current_artisan.id,
+          name: current_artisan.company_name || current_artisan.email,
+          email: current_artisan.email,
+          user_type: 'Artisan'
+        }
       }
     else
       render json: {
@@ -26,3 +30,4 @@ class Api::V1::AuthController < ApplicationController
     end
   end
 end
+

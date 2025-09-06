@@ -48,8 +48,10 @@ Rails.application.routes.draw do
         end
       end
 
+      namespace :auth do
+        get :current_user
+      end
       resources :feedbacks, only: [:index, :create]
-      get 'auth/current_user', to: 'auth#current_user'
     end
   end
 
